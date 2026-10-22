@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Billfold — Direction D · Swiss</title>
+<link rel="stylesheet" href="base.css" />
+<style>
+  :root{
+    --paper:#FFFFFF; --ink:#0A0A0A; --muted:#8C8C8C; --line:#E6E6E6;
+    --accent:#FF3B1F; --accent-soft:#FFF0ED; --mono:#5F5F5F;
+  }
+  body{ background:#E4E4E1; }
+  .screen{ font-family:"Archivo",system-ui,sans-serif; }
+  .tabbar{ height:60px; border-top:1.5px solid var(--ink); display:grid; grid-template-columns:repeat(5,1fr); padding:0 }
+  .tab{ font-family:"JetBrains Mono",monospace; font-size:8px; letter-spacing:.14em; text-transform:uppercase; gap:5px; color:#8C8C8C; position:relative }
+  .tab.on{ color:var(--ink); font-weight:600 }
+  .tab.on:before{ content:''; position:absolute; top:-1.5px; left:18px; right:18px; height:3px; background:var(--accent) }
+  .tab .ic{ font-size:13px }
+
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:8px 0 6px }
+  .wordmark{ font-size:11px; font-weight:700; letter-spacing:.28em; text-transform:uppercase }
+  .wordmark i{ color:var(--accent); font-style:normal }
+  .dotmenu{ display:flex; gap:3px; align-items:center }
+  .dotmenu i{ width:3px;height:3px;background:var(--ink); display:block }
+  .dateline{ font-family:"JetBrains Mono",monospace; font-size:9px; letter-spacing:.1em; color:var(--muted); text-transform:uppercase; border-top:1.5px solid var(--ink); margin-top:12px; padding-top:8px; display:flex; justify-content:space-between }
+  .hero{ margin-top:16px }
+  .hero .lab{ font-family:"JetBrains Mono",monospace; font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:#5F5F5F }
+  .hero .big{ font-size:52px; font-weight:500; letter-spacing:-.055em; line-height:.98; margin:6px 0 0; font-variant-numeric:tabular-nums }
+  .hero .cur{ font-size:20px; vertical-align:top; letter-spacing:0; margin-right:2px; color:#8C8C8C; font-weight:400 }
+  .hero .meta{ display:flex; gap:14px; margin-top:10px; font-size:10px; color:#5F5F5F; letter-spacing:.01em }
+  .hero .meta b{ font-weight:600; color:var(--ink) }
+  .hero .meta .warn{ color:var(--accent); font-weight:600 }
+  .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-top:18px }
+  .grid3 > div{ padding:11px 0 }
+  .grid3 > div + div{ border-left:1px solid var(--line); padding-left:14px }
+  .grid3 .k{ font-family:"JetBrains Mono",monospace; font-size:8px; letter-spacing:.14em; text-transform:uppercase; color:#8C8C8C }
+  .grid3 .v{ font-size:15px; font-weight:500; margin-top:5px; letter-spacing:-.03em }
+  .grid3 .v.acc{ color:var(--accent) }
+  .bars{ display:flex; align-items:flex-end; gap:9px; height:62px; margin-top:18px; border-bottom:1.5px solid var(--ink); padding-bottom:0 }
+  .bars .b{ flex:1; background:#0A0A0A; position:relative }
+  .bars .b.now{ background:var(--accent) }
+  .bars .b span{ position:absolute; top:100%; left:0; font-family:"JetBrains Mono",monospace; font-size:7.5px; color:#8C8C8C; letter-spacing:.08em; margin-top:5px }
+  .sechead{ display:flex; align-items:baseline; justify-content:space-between; margin:27px 0 0; border-bottom:1.5px solid var(--ink); padding-bottom:6px }
+  .sechead .h{ font-family:"JetBrains Mono",monospace; font-size:9px; letter-spacing:.2em; text-transform:uppercase; font-weight:600 }
+  .sechead .a{ font-size:9px; letter-spacing:.06em; color:var(--accent); text-transform:uppercase; font-weight:600 }
+  .tblhead{ display:grid; grid-template-columns:1fr 76px; font-family:"JetBrains Mono",monospace; font-size:7.5px; letter-spacing:.12em; text-transform:uppercase; color:#A0A0A0; padding:6px 0 4px }
+  .tblhead .r{ text-align:right }
+  .irec{ display:flex; align-items:center; gap:8px; padding:10px 0; border-bottom:1px solid var(--line) }
+  .irec .m{ flex:1; min-width:0 }
+  .irec .t{ font-size:12.5px; font-weight:500; letter-spacing:-.01em }
+  .irec .s{ font-family:"JetBrains Mono",monospace; font-size:8.5px; color:#8C8C8C; margin-top:3px; letter-spacing:.02em }
+  .irec .r{ text-align:right }
+  .irec .a{ font-size:12.5px; font-weight:500; letter-spacing:-.02em }
+  .irec .st{ font-family:"JetBrains Mono",monospace; font-size:7px; letter-spacing:.14em; text-transform:uppercase; margin-top:4px }
+  .st.o{ color:var(--accent) } .st.p{ color:#0A0A0A } .st.s{ color:#5F5F5F } .st.d{ color:#A0A0A0 }
+  .foot-note{ margin-top:14px; font-family:"JetBrains Mono",monospace; font-size:8px; letter-spacing:.03em; color:#8C8C8C; display:flex; justify-content:space-between; border-top:1px solid var(--line); padding-top:7px }
+
+  /* invoices */
+  .pageh{ display:flex; align-items:flex-start; justify-content:space-between; border-bottom:1.5px solid var(--ink); padding:6px 0 10px }
+  .pageh h1{ font-size:34px; font-weight:500; letter-spacing:-.05em; margin:0; line-height:1 }
+  .pageh .n{ font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.12em; text-transform:uppercase; color:#8C8C8C; margin-top:7px }
+  .newbtn{ display:flex; align-items:center; gap:6px; background:var(--ink); color:#fff; font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.12em; text-transform:uppercase; padding:9px 11px; margin-top:4px }
+  .filters{ display:flex; gap:14px; border-bottom:1px solid var(--line); padding:9px 0 8px; font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.1em; text-transform:uppercase; color:#A0A0A0 }
+  .filters .on{ color:var(--ink); font-weight:600; border-bottom:2px solid var(--accent); padding-bottom:6px; margin-bottom:-9px }
+  .searchline{ display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--line); padding:9px 0; color:#A0A0A0; font-size:11px }
+  .searchline .k{ font-family:"JetBrains Mono",monospace; font-size:7.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink); padding-right:8px; border-right:1px solid var(--line) }
+  .mrow{ display:flex; justify-content:space-between; align-items:baseline; margin-top:16px; border-bottom:1px solid var(--line); padding-bottom:5px }
+  .mrow .l{ font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.16em; text-transform:uppercase; color:#0A0A0A; font-weight:600 }
+  .mrow .r{ font-family:"JetBrains Mono",monospace; font-size:8.5px; color:#8C8C8C }
+  .irow{ display:grid; grid-template-columns:1fr auto; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); align-items:center }
+  .irow .t{ font-size:12.5px; font-weight:500; letter-spacing:-.01em }
+  .irow .s{ font-family:"JetBrains Mono",monospace; font-size:8px; color:#9A9A9A; margin-top:3px; letter-spacing:.04em; text-transform:uppercase }
+  .irow .r{ text-align:right }
+  .irow .a{ font-size:12.5px; font-weight:500; letter-spacing:-.02em }
+  .irow .st{ font-family:"JetBrains Mono",monospace; font-size:7px; letter-spacing:.14em; text-transform:uppercase; margin-top:3px }
+
+  /* editor */
+  .enav{ display:flex; align-items:center; justify-content:space-between; border-bottom:1.5px solid var(--ink); padding:6px 0 9px }
+  .enav .t{ font-size:13px; font-weight:600; letter-spacing:-.01em }
+  .enav .x{ font-family:"JetBrains Mono",monospace; font-size:10px; color:#8C8C8C }
+  .enav .save{ font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.12em; text-transform:uppercase; background:var(--accent); color:#fff; padding:8px 12px }
+  .flabel{ font-family:"JetBrains Mono",monospace; font-size:7.5px; letter-spacing:.16em; text-transform:uppercase; color:#8C8C8C; margin:14px 0 5px }
+  .clientbox{ display:flex; align-items:center; gap:10px; border:1px solid var(--ink); padding:10px 11px }
+  .clientbox .nm{ font-size:12.5px; font-weight:600 }
+  .clientbox .ad{ font-family:"JetBrains Mono",monospace; font-size:8px; color:#8C8C8C; margin-top:3px; letter-spacing:.03em }
+  .clientbox .ch{ margin-left:auto; font-family:"JetBrains Mono",monospace; font-size:8px; color:var(--accent) }
+  .pairgrid{ display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--line); margin-top:12px }
+  .cell{ padding:8px 0; border-bottom:1px solid var(--line) }
+  .cell:nth-child(odd){ border-right:1px solid var(--line); padding-right:12px }
+  .cell:nth-child(even){ padding-left:12px }
+  .cell .k{ font-family:"JetBrains Mono",monospace; font-size:7px; letter-spacing:.14em; text-transform:uppercase; color:#A0A0A0 }
+  .cell .v{ font-size:11.5px; font-weight:500; margin-top:4px }
+  .items-t{ display:flex; justify-content:space-between; font-family:"JetBrains Mono",monospace; font-size:7px; letter-spacing:.14em; text-transform:uppercase; color:#A0A0A0; border-bottom:1px solid var(--line); padding-bottom:5px; margin-top:14px }
+  .lrow{ padding:9px 0; border-bottom:1px solid var(--line) }
+  .lrow .top{ display:flex; justify-content:space-between; align-items:baseline }
+  .lrow .d{ font-size:12px; font-weight:500 }
+  .lrow .a{ font-size:12px; font-weight:500 }
+  .lrow .bot{ display:flex; justify-content:space-between; margin-top:4px; font-family:"JetBrains Mono",monospace; font-size:8px; color:#8C8C8C; letter-spacing:.02em }
+  .addline{ display:flex; justify-content:space-between; padding:10px 0; border-bottom:1.5px solid var(--ink); font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); font-weight:600 }
+  .sumrows{ margin-top:10px }
+  .srow{ display:flex; justify-content:space-between; font-size:10.5px; padding:3px 0; color:#5F5F5F; font-variant-numeric:tabular-nums }
+  .srow.g{ margin-top:6px; border-top:1.5px solid var(--ink); padding-top:8px; align-items:baseline }
+  .srow.g span:first-child{ font-family:"JetBrains Mono",monospace; font-size:8px; letter-spacing:.16em; text-transform:uppercase; color:#0A0A0A; font-weight:600 }
+  .srow.g b{ font-size:24px; font-weight:500; letter-spacing:-.045em; color:#0A0A0A }
+  .dock{ position:absolute; left:0; right:0; bottom:0; display:flex; border-top:1.5px solid var(--ink); background:#fff }
+  .dock .p{ flex:1; padding:14px; text-align:center; font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; color:#0A0A0A; border-right:1px solid var(--ink) }
+  .dock .n{ flex:1.5; padding:14px; text-align:center; font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; background:var(--accent); color:#fff; font-weight:700 }
+
+  /* preview */
+  .pv{ background:#121212; height:100%; margin:0 -20px; padding:0 20px 16px; color:#EDEDED }
+  .pv .enav{ border-bottom:1px solid #2E2E2E }
+  .pv .enav .t{ font-family:"JetBrains Mono",monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#B5B5B5 }
+  .pv .enav .x{ color:#777 }
+  .segs{ display:flex; gap:0; margin-bottom:12px; border:1px solid #2E2E2E }
+  .segs span{ flex:1; text-align:center; padding:6px 0; font-family:"JetBrains Mono",monospace; font-size:7.5px; letter-spacing:.12em; text-transform:uppercase; color:#8C8C8C }
+  .segs span + span{ border-left:1px solid #2E2E2E }
+  .segs span.on{ background:#EDEDED; color:#0A0A0A; font-weight:600 }
+  .pv .sheet{ height:586px; box-shadow:0 22px 44px -22px #000; position:relative }
+  .stop{ height:5px; background:#0A0A0A }
+  .sin{ padding:16px 18px 0 }
+  .srow1{ display:flex; justify-content:space-between; align-items:flex-start }
+  .srow1 .brand{ font-size:14px; font-weight:600; letter-spacing:-.02em }
+  .srow1 .tag{ font-family:"JetBrains Mono",monospace; font-size:6.5px; letter-spacing:.2em; color:#8C8C8C; margin-top:3px }
+  .srow1 .doc{ font-family:"JetBrains Mono",monospace; font-size:6.8px; letter-spacing:.24em; color:#8C8C8C; text-align:right; line-height:1.8 }
+  .sno{ font-size:20px; font-weight:500; letter-spacing:-.04em; margin-top:14px; font-variant-numeric:tabular-nums }
+  .smeta{ font-family:"JetBrains Mono",monospace; font-size:6.6px; letter-spacing:.05em; color:#8C8C8C; margin-top:3px }
+  .sgrid{ display:flex; gap:12px; margin-top:14px; border-top:1px solid #0A0A0A; padding-top:9px }
+  .sgrid > div{ flex:1; font-size:7px; line-height:1.6; color:#333 }
+  .sgrid b{ display:block; font-family:"JetBrains Mono",monospace; font-size:5.8px; letter-spacing:.16em; color:#9A9A9A; margin-bottom:4px; font-weight:600 }
+  .sin table{ width:100%; border-collapse:collapse; margin-top:13px; font-size:7px }
+  .sin th{ text-align:left; font-family:"JetBrains Mono",monospace; font-size:5.6px; letter-spacing:.12em; color:#9A9A9A; border-bottom:1px solid #0A0A0A; padding-bottom:4px; font-weight:500 }
+  .sin th.r,.sin td.r{ text-align:right }
+  .sin td{ padding:7px 0; border-bottom:1px solid #E6E6E6; color:#1A1A1A }
+  .sin .sub{ font-size:6.2px; color:#9A9A9A; margin-top:2px }
+  .stot{ display:flex; justify-content:flex-end; margin-top:10px }
+  .stot .box{ width:58% }
+  .pv .stot .r{ display:flex; justify-content:space-between; padding:2.5px 0; font-size:7px; color:#5F5F5F; font-variant-numeric:tabular-nums }
+  .pv .stot .r.g{ background:#0A0A0A; color:#fff; border:0; margin-top:5px; padding:7px 8px; font-weight:600; font-size:9px; font-family:"Archivo",sans-serif; letter-spacing:-.01em }
+  .snote{ margin-top:14px; border-top:1px solid #E6E6E6; padding-top:7px; font-family:"JetBrains Mono",monospace; font-size:6px; line-height:1.7; color:#8C8C8C; letter-spacing:.02em; width:70% }
+  .sfoot2{ position:absolute; left:18px; right:18px; bottom:12px; display:flex; justify-content:space-between; border-top:1px solid #0A0A0A; padding-top:6px; font-family:"JetBrains Mono",monospace; font-size:6px; letter-spacing:.1em; text-transform:uppercase; color:#5F5F5F }
+  .pact{ display:flex; margin-top:11px; border:1px solid #2E2E2E }
+  .pact .s{ width:46px; display:grid; place-items:center; color:#EDEDED; border-right:1px solid #2E2E2E; font-size:12px }
+  .pact .p{ flex:1; text-align:center; padding:13px 0; font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; background:var(--accent); color:#fff; font-weight:700; border:0 }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="caption"><b>Swiss</b> · Dashboard</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="icons">▮▮▮ ⌁ ▰</span></div>
+    <div class="body">
+      <div class="topbar">
+        <div class="wordmark">Bill<i>·</i>fold</div>
+        <div class="dotmenu"><i></i><i></i><i></i></div>
+      </div>
+      <div class="dateline"><span>Tue 22 Mar 2026</span><span>Northwind Studio</span></div>
+      <div class="hero">
+        <div class="lab">Outstanding balance</div>
+        <div class="big"><span class="cur">$</span>12,480.00</div>
+        <div class="meta"><span><b>6</b> open</span><span><b>2</b> due</span><span class="warn">$2,150 overdue</span></div>
+      </div>
+      <div class="grid3">
+        <div><div class="k">Paid YTD</div><div class="v">84,200</div></div>
+        <div><div class="k">Avg. days</div><div class="v">11.4</div></div>
+        <div><div class="k">Drafts</div><div class="v acc">4</div></div>
+      </div>
+      <div class="bars">
+        <div class="b" style="height:26px"><span>NOV</span></div>
+        <div class="b" style="height:38px"><span>DEC</span></div>
+        <div class="b" style="height:31px"><span>JAN</span></div>
+        <div class="b" style="height:45px"><span>FEB</span></div>
+        <div class="b" style="height:39px"><span>MAR</span></div>
+        <div class="b now" style="height:58px"><span>APR</span></div>
+      </div>
+      <div class="sechead"><div class="h">Recent invoices</div><div class="a">All 12 →</div></div>
+      <div class="tblhead"><span>CLIENT / REFERENCE</span><span class="r">AMOUNT</span></div>
+      <div class="irec"><div class="m"><div class="t">Halcyon Coffee</div><div class="s">INV-2026-0041 · DUE 26 MAR</div></div><div class="r"><div class="a">3,240.00</div><div class="st o">Overdue</div></div></div>
+      <div class="irec"><div class="m"><div class="t">Mira &amp; Co.</div><div class="s">INV-2026-0040 · DUE 02 APR</div></div><div class="r"><div class="a">1,800.00</div><div class="st s">Sent</div></div></div>
+      <div class="irec"><div class="m"><div class="t">Northgate Labs</div><div class="s">INV-2026-0039 · PAID 18 MAR</div></div><div class="r"><div class="a">5,600.00</div><div class="st p">Paid</div></div></div>
+      <div style="display:flex;gap:8px;margin-top:18px">
+        <div style="flex:1;background:#0A0A0A;color:#fff;padding:12px 11px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center">New invoice<span style="color:#FF3B1F;font-size:11px">→</span></div>
+        <div style="flex:1;border:1px solid #0A0A0A;padding:12px 11px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center">Remind<span>2</span></div>
+      </div>
+      <div class="foot-note"><span>Net 14 · USD</span><span>2 of 6 late</span></div>
+    </div>
+    <div class="tabbar">
+      <div class="tab on"><span class="ic">◈</span><span>Home</span></div>
+      <div class="tab"><span class="ic">▤</span><span>Invoices</span></div>
+      <div class="tab"><span class="ic">◍</span><span>Clients</span></div>
+      <div class="tab"><span class="ic">▦</span><span>Items</span></div>
+      <div class="tab"><span class="ic">⚙</span><span>Setup</span></div>
+    </div>
+  </div></div>
+</div>
+
+<div class="frame">
+  <div class="caption"><b>Swiss</b> · Invoices</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="icons">▮▮▮ ⌁ ▰</span></div>
+    <div class="body">
+      <div class="pageh">
+        <div><h1>Invoices</h1><div class="n">12 records · 18,730.00 USD</div></div>
+        <div class="newbtn">+ New</div>
+      </div>
+      <div class="filters"><span class="on">All</span><span>Unpaid</span><span>Overdue</span><span>Paid</span></div>
+      <div class="searchline"><span class="k">Find</span><span>Client, number or amount</span></div>
+      <div class="mrow"><div class="l">March 2026</div><div class="r">8,640.00</div></div>
+      <div class="irow"><div><div class="t">Halcyon Coffee</div><div class="s">INV-0041 · Due 26 Mar</div></div><div class="r"><div class="a">3,240.00</div><div class="st o">Overdue</div></div></div>
+      <div class="irow"><div><div class="t">Mira &amp; Co.</div><div class="s">INV-0040 · Due 02 Apr</div></div><div class="r"><div class="a">1,800.00</div><div class="st s">Sent</div></div></div>
+      <div class="irow"><div><div class="t">Northgate Labs</div><div class="s">INV-0039 · Paid 18 Mar</div></div><div class="r"><div class="a">5,600.00</div><div class="st p">Paid</div></div></div>
+      <div class="mrow"><div class="l">February 2026</div><div class="r">6,900.00</div></div>
+      <div class="irow"><div><div class="t">Verity Health</div><div class="s">INV-0038 · Paid 28 Feb</div></div><div class="r"><div class="a">4,100.00</div><div class="st p">Paid</div></div></div>
+      <div class="irow"><div><div class="t">Atlas Foundry</div><div class="s">INV-0037 · Edited 2h ago</div></div><div class="r"><div class="a">2,800.00</div><div class="st d">Draft</div></div></div>
+      <div class="irow"><div><div class="t">Halcyon Coffee</div><div class="s">INV-0036 · Paid 14 Feb</div></div><div class="r"><div class="a">1,190.00</div><div class="st p">Paid</div></div></div>
+      <div class="foot-note"><span>Sorted: newest first</span><span>4 shown</span></div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><span class="ic">◈</span><span>Home</span></div>
+      <div class="tab on"><span class="ic">▤</span><span>Invoices</span></div>
+      <div class="tab"><span class="ic">◍</span><span>Clients</span></div>
+      <div class="tab"><span class="ic">▦</span><span>Items</span></div>
+      <div class="tab"><span class="ic">⚙</span><span>Setup</span></div>
+    </div>
+  </div></div>
+</div>
+<div class="frame">
+  <div class="caption"><b>Swiss</b> · Invoice editor</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="icons">▮▮▮ ⌁ ▰</span></div>
+    <div class="body" style="padding-bottom:56px">
+      <div class="enav"><span class="x">✕ CLOSE</span><span class="t">New invoice</span><span class="save">Save</span></div>
+      <div class="flabel">Client</div>
+      <div class="clientbox">
+        <div><div class="nm">Halcyon Coffee</div><div class="ad">MARTA SILVA · LISBON, PT · NET 14</div></div>
+        <div class="ch">CHANGE</div>
+      </div>
+      <div class="pairgrid">
+        <div class="cell"><div class="k">Number</div><div class="v">INV-2026-0042</div></div>
+        <div class="cell"><div class="k">Currency</div><div class="v">USD · $</div></div>
+        <div class="cell"><div class="k">Issued</div><div class="v">22 Mar 2026</div></div>
+        <div class="cell"><div class="k">Due</div><div class="v">05 Apr 2026</div></div>
+      </div>
+      <div class="items-t"><span>Description</span><span>Qty / rate / amount</span></div>
+      <div class="lrow"><div class="top"><div class="d">Brand identity system</div><div class="a">2,400.00</div></div><div class="bot"><span>1 × 2,400.00 · TAX 8.5%</span><span>EDIT</span></div></div>
+      <div class="lrow"><div class="top"><div class="d">Packaging design</div><div class="a">840.00</div></div><div class="bot"><span>3 × 280.00 · TAX 8.5%</span><span>EDIT</span></div></div>
+      <div class="addline"><span>+ Add line item</span><span>DELETE</span></div>
+      <div class="sumrows">
+        <div class="srow"><span>Subtotal</span><span>3,240.00</span></div>
+        <div class="srow"><span>Discount 5%</span><span>−162.00</span></div>
+        <div class="srow"><span>Tax 8.5%</span><span>256.65</span></div>
+        <div class="srow g"><span>Total due</span><b>$3,334.65</b></div>
+      </div>
+      <div style="margin-top:12px;padding-top:8px;border-top:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.05em;color:#8C8C8C;line-height:1.7">NOTE ON PDF — THANK YOU FOR YOUR BUSINESS.<br/>PAYMENT WITHIN 14 DAYS · IBAN PT50 0002 0123 1234</div>
+    </div>
+    <div class="dock"><div class="p">Preview</div><div class="n">Issue invoice →</div></div>
+  </div></div>
+</div>
+
+<div class="frame">
+  <div class="caption"><b>Swiss</b> · PDF preview</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar" style="background:#121212;--status-ink:#EDEDED"><span>9:41</span><span class="icons">▮▮▮ ⌁ ▰</span></div>
+    <div class="pv">
+      <div class="enav"><span class="x">←</span><span class="t">INV-2026-0041 · A4</span><span class="x">⋯</span></div>
+      <div class="segs"><span class="on">Minimal</span><span>Classic</span><span>Modern</span></div>
+      <div class="sheet">
+        <div class="stop"></div>
+        <div class="sin">
+          <div class="srow1">
+            <div><div class="brand">Northwind Studio</div><div class="tag">DESIGN &amp; BRAND SYSTEMS</div></div>
+            <div class="doc">INVOICE<br/>INV-2026-0041<br/>12.03.2026</div>
+          </div>
+          <div class="sno">3,803.52 USD</div>
+          <div class="smeta">DUE 26 MARCH 2026 · NET 14 · PO 8841</div>
+          <div class="sgrid">
+            <div><b>BILL TO</b>Halcyon Coffee<br/>Attn. Marta Silva<br/>Rua do Alecrim 44<br/>1200-018 Lisbon, PT</div>
+            <div><b>FROM</b>Northwind Studio<br/>Rua da Boavista 12<br/>1200-066 Lisbon, PT<br/>VAT PT512884221</div>
+            <div><b>PAYMENT</b>Bank transfer<br/>IBAN PT50 0002 0123 1234<br/>BIC BCOMPTPL<br/>Ref. INV-2026-0041</div>
+          </div>
+          <table>
+            <tr><th>DESCRIPTION</th><th class="r">QTY</th><th class="r">RATE</th><th class="r">AMOUNT</th></tr>
+            <tr><td>Brand identity system<div class="sub">Logo suite, voice, guidelines</div></td><td class="r">1</td><td class="r">2,400.00</td><td class="r">2,400.00</td></tr>
+            <tr><td>Packaging design<div class="sub">Retail carton + label system</div></td><td class="r">3</td><td class="r">280.00</td><td class="r">840.00</td></tr>
+            <tr><td>Art direction · photoshoot</td><td class="r">1</td><td class="r">450.00</td><td class="r">450.00</td></tr>
+            <tr><td>Project management</td><td class="r">4</td><td class="r">90.00</td><td class="r">360.00</td></tr>
+          </table>
+          <div class="stot"><div class="box">
+            <div class="r"><span>Subtotal</span><span>4,050.00</span></div>
+            <div class="r"><span>Discount 5%</span><span>−202.50</span></div>
+            <div class="r"><span>Tax 8.5%</span><span>327.04</span></div>
+            <div class="r g"><span>Total due</span><span>4,174.54</span></div>
+          </div></div>
+          <div class="snote">THANK YOU. PAYMENT WITHIN 14 DAYS OF ISSUE. PLEASE REFERENCE THE INVOICE NUMBER ON YOUR TRANSFER.</div>
+          <div class="sfoot2"><span>northwind.studio</span><span>page 1 / 1</span>&nbsp;</div>
+        </div>
+      </div>
+      <div class="pact"><div class="s">↗</div><div class="p">Save PDF</div></div>
+    </div>
+  </div></div>
+</div>
+
+
+
+</html>

@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Billfold — Direction C · Bloom</title>
+<link rel="stylesheet" href="base.css" />
+<style>
+  :root{
+    --paper:#FBF6F1; --card:#FFFFFF; --ink:#221B33; --muted:#8A8199; --line:#EFE7DE;
+    --accent:#6C4CF1; --accent-soft:#EFEAFF; --peach:#FFB59B; --mint:#8FE3C0; --warn:#E4674F;
+  }
+  body{ background:#E7E1D9; }
+  .screen{ font-family:"Jakarta",system-ui,sans-serif; }
+  .tabbar{
+    position:absolute; left:16px; right:16px; bottom:14px; height:62px; border:1px solid #EFE7DE;
+    border-radius:22px; background:rgba(255,255,255,.92); backdrop-filter:blur(12px);
+    box-shadow:0 14px 30px -18px rgba(60,40,110,.45); padding:0 6px 2px;
+  }
+  .tab{ font-size:8.5px; letter-spacing:.02em; text-transform:none; gap:3px }
+  .tab .ic{ font-size:15px }
+  .tab.on{ color:var(--accent) }
+  .tab.on .ic{ background:var(--accent-soft); border-radius:9px; padding:4px 10px }
+  .body{ padding-bottom:86px }
+
+  .hi{ display:flex; align-items:center; justify-content:space-between; padding-top:6px }
+  .hi .g{ font-size:11px; color:var(--muted); letter-spacing:.02em }
+  .hi .n{ font-family:"Bricolage",system-ui,sans-serif; font-size:22px; font-weight:700; letter-spacing:-.03em; margin-top:3px }
+  .hi .av{ width:40px;height:40px;border-radius:14px; background:linear-gradient(140deg,#FFD9C9,#FFB59B); display:grid;place-items:center; font-size:12px; font-weight:700; color:#7A3B22; box-shadow:0 8px 18px -10px rgba(255,150,120,.9) }
+
+  .hero{
+    margin-top:16px; border-radius:26px; padding:18px; position:relative; overflow:hidden;
+    background:linear-gradient(155deg,#F0E9FF 0%,#EFE7FF 40%,#FFF1EA 100%);
+    box-shadow:0 18px 34px -26px rgba(90,60,160,.55);
+  }
+  .hero .blob{ position:absolute; width:120px;height:120px;border-radius:50%; background:rgba(255,255,255,.55); right:-30px; top:-40px }
+  .hero .lab{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:#8677A8; font-weight:600 }
+  .hero .amt{ font-family:"Bricolage",system-ui,sans-serif; font-size:40px; font-weight:700; letter-spacing:-.045em; margin-top:4px; color:#2A1F45 }
+  .hero .sub{ display:flex; gap:6px; align-items:center; font-size:11px; color:#7A6F92; margin-top:6px }
+  .hero .ring{ position:absolute; right:18px; bottom:16px; width:74px; height:74px }
+  .hero .pill{ display:inline-flex; gap:4px; align-items:center; background:#fff; border-radius:999px; padding:5px 9px; font-size:9.5px; font-weight:600; color:#3F7A5C; margin-top:12px; box-shadow:0 6px 14px -10px rgba(60,40,110,.4) }
+  .hero .split{ display:flex; justify-content:space-between; align-items:flex-end; position:relative; z-index:2 }
+
+  .quick{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px }
+  .qb{ display:flex; align-items:center; gap:10px; background:#fff; border:1px solid var(--line); border-radius:18px; padding:12px 13px; box-shadow:0 10px 22px -20px rgba(60,40,110,.5) }
+  .qb .ic{ width:32px;height:32px;border-radius:11px; display:grid; place-items:center; font-size:14px; font-weight:700 }
+  .qb.p .ic{ background:#EFEAFF; color:#5B3FE0 }
+  .qb.s .ic{ background:#FFEDE5; color:#C4593A }
+  .qb .t{ font-size:11.5px; font-weight:600 }
+  .qb .d{ font-size:9px; color:var(--muted); margin-top:2px }
+
+  .shead{ display:flex; align-items:baseline; justify-content:space-between; margin:20px 0 10px }
+  .shead .h{ font-family:"Bricolage",system-ui,sans-serif; font-size:16px; font-weight:700; letter-spacing:-.02em }
+  .shead .a{ font-size:10.5px; color:var(--accent); font-weight:600 }
+
+  .card{ background:#fff; border:1px solid var(--line); border-radius:20px; padding:4px 14px; box-shadow:0 14px 30px -26px rgba(60,40,110,.5) }
+  .cr{ display:flex; align-items:center; gap:11px; padding:11px 0; border-bottom:1px solid #F5EFE8 }
+  .cr:last-child{ border-bottom:0 }
+  .cr .av{ width:34px;height:34px;border-radius:12px; display:grid; place-items:center; font-size:10.5px; font-weight:700 }
+  .cr .av.a{ background:#EFEAFF; color:#5B3FE0 }
+  .cr .av.b{ background:#FFEDE5; color:#C4593A }
+  .cr .av.c{ background:#E4F6EE; color:#2F7A5C }
+  .cr .m{ flex:1; min-width:0 }
+  .cr .t{ font-size:12.5px; font-weight:600; letter-spacing:-.01em }
+  .cr .s{ font-size:9.5px; color:var(--muted); margin-top:2px }
+  .cr .r{ text-align:right }
+  .cr .a2{ font-size:12.5px; font-weight:700; letter-spacing:-.02em }
+  .chip{ display:inline-block; margin-top:4px; font-size:8.4px; font-weight:700; padding:3px 7px; border-radius:99px; letter-spacing:.02em }
+  .chip.over{ background:#FDECE8; color:#C4452A }
+  .chip.sent{ background:#EFEAFF; color:#5B3FE0 }
+  .chip.paid{ background:#E4F6EE; color:#2F7A5C }
+  .chip.draft{ background:#F1EEEA; color:#857B92 }
+
+  /* invoices */
+  .page{ padding-top:8px }
+  .page h1{ font-family:"Bricolage",system-ui,sans-serif; font-size:27px; font-weight:700; letter-spacing:-.035em; margin:0 }
+  .page .cnt{ font-size:10.5px; color:var(--muted); margin-top:4px }
+  .rowtop{ display:flex; justify-content:space-between; align-items:flex-start }
+  .addbtn{ width:38px;height:38px;border-radius:14px; background:var(--accent); color:#fff; display:grid; place-items:center; font-size:19px; font-weight:600; box-shadow:0 12px 24px -12px rgba(108,76,241,.9) }
+  .searchbox{ display:flex; align-items:center; gap:9px; background:#fff; border:1px solid var(--line); border-radius:15px; padding:11px 13px; margin-top:13px; color:#A79DB8; font-size:11.5px; box-shadow:0 10px 24px -24px rgba(60,40,110,.7) }
+  .chips{ display:flex; gap:7px; margin-top:11px }
+  .fchip{ font-size:10.5px; font-weight:600; padding:7px 12px; border-radius:99px; background:#fff; border:1px solid var(--line); color:#7C7291 }
+  .fchip.on{ background:var(--ink); color:#fff; border-color:var(--ink) }
+  .mlabel{ display:flex; justify-content:space-between; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:#A79DB8; font-weight:700; margin:17px 2px 8px }
+  .iv{ background:#fff; border:1px solid var(--line); border-radius:20px; padding:13px 14px; margin-bottom:9px; display:flex; align-items:center; gap:11px; box-shadow:0 14px 30px -28px rgba(60,40,110,.8) }
+  .iv .m{ flex:1; min-width:0 }
+  .iv .t{ font-size:13px; font-weight:700; letter-spacing:-.015em }
+  .iv .s{ font-size:9.5px; color:var(--muted); margin-top:3px }
+  .iv .r{ text-align:right }
+  .iv .a{ font-size:13px; font-weight:700; letter-spacing:-.03em }
+  .iv .go{ width:24px;height:24px;border-radius:50%; background:#F7F3EE; color:#A79DB8; display:grid; place-items:center; font-size:11px; margin-left:2px }
+
+  /* editor */
+  .enav{ display:flex; align-items:center; justify-content:space-between; padding:4px 0 10px }
+  .enav .t{ font-family:"Bricolage",system-ui,sans-serif; font-size:15px; font-weight:700; letter-spacing:-.02em }
+  .enav .pill{ font-size:9px; font-weight:700; background:#EFEAFF; color:#5B3FE0; padding:4px 8px; border-radius:99px }
+  .cl{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:12px 13px; display:flex; align-items:center; gap:11px; box-shadow:0 12px 26px -26px rgba(60,40,110,.8) }
+  .cl .av{ width:32px;height:32px;border-radius:11px; background:#FFEDE5; color:#C4593A; display:grid; place-items:center; font-size:10.5px; font-weight:700 }
+  .cl .nm{ font-size:12.5px; font-weight:700 }
+  .cl .ad{ font-size:9.5px; color:var(--muted); margin-top:2px }
+  .lbl{ font-size:9px; letter-spacing:.11em; text-transform:uppercase; color:#A79DB8; font-weight:700; margin:15px 2px 8px }
+  .duo{ display:grid; grid-template-columns:1fr 1fr; gap:9px }
+  .fl{ background:#fff; border:1px solid var(--line); border-radius:15px; padding:9px 12px }
+  .fl .l{ font-size:8.2px; letter-spacing:.08em; text-transform:uppercase; color:#A79DB8; font-weight:600 }
+  .fl .v{ font-size:11px; font-weight:600; margin-top:4px }
+  .li{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:11px 13px; margin-bottom:8px; box-shadow:0 12px 26px -28px rgba(60,40,110,.8) }
+  .li .top{ display:flex; justify-content:space-between; align-items:baseline }
+  .li .d{ font-size:12px; font-weight:700; letter-spacing:-.01em }
+  .li .a{ font-size:12px; font-weight:700 }
+  .li .bot{ display:flex; justify-content:space-between; align-items:center; margin-top:9px }
+  .qty{ display:flex; align-items:center; gap:9px; background:#F8F4EF; border-radius:99px; padding:4px 10px; font-size:10.5px; color:#6E6482; font-weight:600 }
+  .qty b{ color:#2A1F45 }
+  .li .pr{ font-size:9.5px; color:var(--muted) }
+  .nli{ border:1.5px dashed #DCD2C6; border-radius:16px; padding:10px; text-align:center; font-size:11px; color:#9A90A9; font-weight:600 }
+  .tcard{ background:linear-gradient(160deg,#F4EEFF,#FFF0E9); border-radius:22px; padding:14px 15px; margin-top:12px; box-shadow:0 14px 30px -28px rgba(90,60,160,.7) }
+  .tr{ display:flex; justify-content:space-between; font-size:10.5px; color:#7A6F92; padding:2.5px 0 }
+  .tr.big{ border-top:1px solid rgba(120,90,190,.18); margin-top:6px; padding-top:8px; color:#2A1F45; align-items:baseline }
+  .tr.big span:first-child{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; color:#7A6F92 }
+  .tr.big b{ font-family:"Bricolage",system-ui,sans-serif; font-size:22px; letter-spacing:-.04em }
+  .dock{ position:absolute; left:0; right:0; bottom:0; padding:12px 20px 18px; background:linear-gradient(180deg,rgba(251,246,241,0),#FBF6F1 45%); display:flex; gap:8px }
+  .dock .a{ width:46px;height:46px;border-radius:15px; background:#fff; border:1px solid var(--line); display:grid; place-items:center; color:#6E6482 }
+  .dock .b{ flex:1; background:var(--accent); color:#fff; border-radius:15px; padding:14px; text-align:center; font-size:12px; font-weight:700; box-shadow:0 14px 26px -14px rgba(108,76,241,.9) }
+
+  /* preview */
+  .pv{ background:#EFE9E2; height:100%; margin:0 -20px; padding:0 20px 16px }
+  .pv .enav .t{ font-size:11px; font-family:"JetBrains Mono",monospace; letter-spacing:0 }
+  .pv .enav .pill{ background:#fff; color:#6E6482; border:1px solid var(--line) }
+  .segs{ display:flex; gap:6px; justify-content:center; margin-bottom:12px }
+  .segs span{ font-size:10px; font-weight:600; padding:6px 12px; border-radius:99px; background:#fff; border:1px solid var(--line); color:#8A8199 }
+  .segs span.on{ background:var(--accent); border-color:var(--accent); color:#fff }
+  .pv .sheet{ border-radius:12px; height:588px; padding:0; overflow:hidden; box-shadow:0 22px 44px -24px rgba(60,40,110,.6) }
+  .phead{ background:linear-gradient(150deg,#EFE8FF,#FFF2EA); padding:18px 18px 16px; position:relative; overflow:hidden }
+  .phead .blob{ position:absolute; width:110px;height:110px;border-radius:50%; background:rgba(255,255,255,.5); right:-36px; top:-46px }
+  .phead .b1{ font-family:"Bricolage",system-ui,sans-serif; font-size:15px; font-weight:700; letter-spacing:-.03em; color:#2A1F45 }
+  .phead .b2{ font-size:6.4px; letter-spacing:.2em; color:#8A7CA8; margin-top:2px }
+  .phead .tot{ font-size:7.4px; letter-spacing:.14em; color:#8A7CA8; margin-top:13px }
+  .phead .num{ font-family:"Bricolage",system-ui,sans-serif; font-size:24px; font-weight:700; letter-spacing:-.045em; color:#2A1F45; margin-top:1px }
+  .phead .no{ position:absolute; right:18px; top:17px; text-align:right; font-size:7.4px; line-height:1.7; color:#7A6F92 }
+  .pbody{ padding:13px 18px 0 }
+  .pcols{ display:flex; gap:13px; font-size:7.4px; line-height:1.55; color:#4A4159 }
+  .pcols b{ display:block; font-size:6px; letter-spacing:.15em; color:#A79DB8; margin-bottom:3px }
+  .pbody table{ width:100%; border-collapse:collapse; margin-top:12px; font-size:7.4px }
+  .pbody th{ text-align:left; font-size:5.9px; letter-spacing:.12em; color:#A79DB8; padding-bottom:5px; border-bottom:1px solid #EFE9E0 }
+  .pbody th.r,.pbody td.r{ text-align:right }
+  .pbody td{ padding:6.5px 0; border-bottom:1px solid #F6F1EA; color:#2E2A24 }
+  .pbody .sub{ font-size:6.4px; color:#A79DB8; margin-top:2px }
+  .ptot{ margin-top:10px; margin-left:auto; width:56%; font-size:7.6px }
+  .ptot .r{ display:flex; justify-content:space-between; padding:2.5px 0; color:#7A6F92 }
+  .ptot .r.g{ border-top:1.2px solid #6C4CF1; margin-top:4px; padding-top:5px; color:#2A1F45; font-weight:700; font-size:9.4px; font-family:"Bricolage",system-ui,sans-serif }
+  .pnote{ margin-top:14px; border-top:1px dashed #E5DCD0; padding-top:8px; font-size:6.6px; color:#8A8199; width:64%; line-height:1.6 }
+  .pfoot{ position:absolute; left:18px; right:18px; bottom:13px; font-size:6.4px; color:#A79DB8; display:flex; justify-content:space-between; align-items:center }
+  .pfoot .dots{ display:flex; gap:3px }
+  .pfoot .dots i{ width:4px;height:4px;border-radius:50%;background:#D9CFF0 }
+  .pact{ display:flex; gap:8px; margin-top:11px }
+  .pact .s{ width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:#6E6482 }
+  .pact .p{ flex:1; background:var(--accent); color:#fff; border-radius:14px; text-align:center; padding:13px; font-size:11.5px; font-weight:700; box-shadow:0 14px 26px -16px rgba(108,76,241,.9) }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="caption"><b>Bloom</b> · Dashboard</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="icons">▮▮▮ ⌁ ▰</span></div>
+    <div class="body">
+      <div class="hi">
+        <div><div class="g">Tuesday, 22 March</div><div class="n">Hey, Ana</div></div>
+        <div class="av">AS</div>
+      </div>
+      <div class="hero">
+        <div class="blob"></div>
+        <div class="split">
+          <div>
+            <div class="lab">Outstanding</div>
+            <div class="amt">$12,480</div>
+            <div class="sub"><span>6 open</span> · <span style="color:#C4452A;font-weight:600">2 overdue</span></div>
+            <div class="pill">↑ 18% vs last month</div>
+          </div>
+          <svg class="ring" viewBox="0 0 74 74">
+            <circle cx="37" cy="37" r="30" fill="none" stroke="#E3D8FF" stroke-width="9"/>
+            <circle cx="37" cy="37" r="30" fill="none" stroke="#6C4CF1" stroke-width="9" stroke-linecap="round" stroke-dasharray="130 190" transform="rotate(-90 37 37)"/>
+            <text x="37" y="36" text-anchor="middle" font-family="Jakarta" font-size="10" font-weight="700" fill="#2A1F45">68%</text>
+            <text x="37" y="47" text-anchor="middle" font-family="Jakarta" font-size="6" fill="#8A7CA8">collected</text>
+          </svg>
+        </div>
+      </div>
+      <div class="quick">
+        <div class="qb p"><div class="ic">+</div><div><div class="t">New invoice</div><div class="d">Start from scratch</div></div></div>
+        <div class="qb s"><div class="ic">◍</div><div><div class="t">Add client</div><div class="d">Save details once</div></div></div>
+      </div>
+      <div class="shead"><div class="h">Recent</div><div class="a">See all</div></div>
+      <div class="card">
+        <div class="cr"><div class="av b">HC</div><div class="m"><div class="t">Halcyon Coffee</div><div class="s">INV-2026-0041 · due 26 Mar</div></div><div class="r"><div class="a2">$3,240</div><span class="chip over">Overdue</span></div></div>
+        <div class="cr"><div class="av a">MC</div><div class="m"><div class="t">Mira &amp; Co.</div><div class="s">INV-2026-0040 · due 02 Apr</div></div><div class="r"><div class="a2">$1,800</div><span class="chip sent">Sent</span></div></div>
+        <div class="cr"><div class="av c">NG</div><div class="m"><div class="t">Northgate Labs</div><div class="s">INV-2026-0039 · paid 18 Mar</div></div><div class="r"><div class="a2">$5,600</div><span class="chip paid">Paid</span></div></div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab on"><span class="ic">◈</span><span>Home</span></div>
+      <div class="tab"><span class="ic">▤</span><span>Invoices</span></div>
+      <div class="tab"><span class="ic">◍</span><span>Clients</span></div>
+      <div class="tab"><span class="ic">▦</span><span>Items</span></div>
+      <div class="tab"><span class="ic">⚙</span><span>Settings</span></div>
+    </div>
+  </div></div>
+</div>
+
+<div class="frame">
+  <div class="caption"><b>Bloom</b> · Invoices</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="icons">▮▮▮ ⌁ ▰</span></div>
+    <div class="body">
+      <div class="page">
+        <div class="rowtop">
+          <div><h1>Your invoices</h1><div class="cnt">12 total · $18,730 billed</div></div>
+          <div class="addbtn">+</div>
+        </div>
+        <div class="searchbox"><span>⌕</span><span>Search client or invoice number</span></div>
+        <div class="chips"><div class="fchip on">All</div><div class="fchip">Due</div><div class="fchip">Paid</div><div class="fchip">Drafts</div></div>
+        <div class="mlabel"><span>March 2026</span><span>$8,640</span></div>
+        <div class="iv"><div class="m"><div class="t">Halcyon Coffee</div><div class="s">INV-2026-0041 · 14 days late</div></div><div class="r"><div class="a">$3,240</div><span class="chip over">Overdue</span></div><div class="go">›</div></div>
+        <div class="iv"><div class="m"><div class="t">Mira &amp; Co.</div><div class="s">INV-2026-0040 · due 2 Apr</div></div><div class="r"><div class="a">$1,800</div><span class="chip sent">Sent</span></div><div class="go">›</div></div>
+        <div class="iv"><div class="m"><div class="t">Northgate Labs</div><div class="s">INV-2026-0039 · paid 18 Mar</div></div><div class="r"><div class="a">$5,600</div><span class="chip paid">Paid</span></div><div class="go">›</div></div>
+        <div class="mlabel"><span>February 2026</span><span>$6,900</span></div>
+        <div class="iv"><div class="m"><div class="t">Verity Health</div><div class="s">INV-2026-0038 · paid 28 Feb</div></div><div class="r"><div class="a">$4,100</div><span class="chip paid">Paid</span></div><div class="go">›</div></div>
+        <div class="iv"><div class="m"><div class="t">Atlas Foundry</div><div class="s">INV-2026-0037 · edited 2h ago</div></div><div class="r"><div class="a">$2,800</div><span class="chip draft">Draft</span></div><div class="go">›</div></div>
+        <div class="iv"><div class="m"><div class="t">Halcyon Coffee</div><div class="s">INV-2026-0036 · paid 14 Feb</div></div><div class="r"><div class="a">$1,190</div><span class="chip paid">Paid</span></div><div class="go">›</div></div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><span class="ic">◈</span><span>Home</span></div>
+      <div class="tab on"><span class="ic">▤</span><span>Invoices</span></div>
+      <div class="tab"><span class="ic">◍</span><span>Clients</span></div>
+      <div class="tab"><span class="ic">▦</span><span>Items</span></div>
+      <div class="tab"><span class="ic">⚙</span><span>Settings</span></div>
+    </div>
+  </div></div>
+</div>
+<div class="frame">
+  <div class="caption"><b>Bloom</b> · Invoice editor</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="icons">▮▮▮ ⌁ ▰</span></div>
+    <div class="body">
+      <div class="enav"><span style="font-size:17px">←</span><span class="t">New invoice</span><span class="pill">DRAFT</span></div>
+      <div class="cl"><div class="av">HC</div><div style="flex:1"><div class="nm">Halcyon Coffee</div><div class="ad">Marta Silva · Lisbon, PT</div></div><span style="color:#B3A9C2">⌄</span></div>
+      <div class="duo" style="margin-top:9px">
+        <div class="fl"><div class="l">Invoice no.</div><div class="v">INV-2026-0042</div></div>
+        <div class="fl"><div class="l">Currency</div><div class="v">USD · $</div></div>
+        <div class="fl"><div class="l">Issued</div><div class="v">22 Mar 2026</div></div>
+        <div class="fl"><div class="l">Due in</div><div class="v">14 days · 05 Apr</div></div>
+      </div>
+      <div class="lbl">What are you charging for?</div>
+      <div class="li">
+        <div class="top"><div class="d">Brand identity system</div><div class="a">$2,400</div></div>
+        <div class="bot"><div class="qty">− <b>1</b> +</div><div class="pr">$2,400 each · tax 8.5%</div></div>
+      </div>
+      <div class="li">
+        <div class="top"><div class="d">Packaging design</div><div class="a">$840</div></div>
+        <div class="bot"><div class="qty">− <b>3</b> +</div><div class="pr">$280 each · tax 8.5%</div></div>
+      </div>
+      <div class="nli">+ Add another item</div>
+      <div class="tcard">
+        <div class="tr"><span>Subtotal</span><span>$3,240.00</span></div>
+        <div class="tr"><span>Discount · 5%</span><span>−$162.00</span></div>
+        <div class="tr"><span>Tax · 8.5%</span><span>$256.65</span></div>
+        <div class="tr big"><span>Total</span><b>$3,334.65</b></div>
+      </div>
+    </div>
+    <div class="dock"><div class="a">▤</div><div class="b">Preview &amp; send</div></div>
+  </div></div>
+</div>
+
+<div class="frame">
+  <div class="caption"><b>Bloom</b> · PDF preview</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="icons">▮▮▮ ⌁ ▰</span></div>
+    <div class="pv">
+      <div class="enav"><span style="font-size:17px">←</span><span class="t">INV-2026-0041 · A4</span><span class="pill">PDF</span></div>
+      <div class="segs"><span class="on">Soft</span><span>Classic</span><span>Minimal</span></div>
+      <div class="sheet">
+        <div class="phead">
+          <div class="blob"></div>
+          <div class="b1">Northwind Studio</div>
+          <div class="b2">DESIGN &amp; BRAND SYSTEMS</div>
+          <div class="tot">TOTAL DUE</div>
+          <div class="num">$3,803.52</div>
+          <div class="no">INVOICE<br/>INV-2026-0041<br/>12 MAR 2026</div>
+        </div>
+        <div class="pbody">
+          <div class="pcols">
+            <div><b>BILL TO</b>Halcyon Coffee<br/>Attn. Marta Silva<br/>Rua do Alecrim 44<br/>1200-018 Lisbon, PT</div>
+            <div><b>FROM</b>Northwind Studio<br/>Rua da Boavista 12<br/>1200-066 Lisbon, PT<br/>VAT PT512884221</div>
+            <div><b>DETAILS</b>Due 26 Mar 2026<br/>Net 14 · USD<br/>PO 8841</div>
+          </div>
+          <table>
+            <tr><th>DESCRIPTION</th><th class="r">QTY</th><th class="r">RATE</th><th class="r">AMOUNT</th></tr>
+            <tr><td>Brand identity system<div class="sub">Logo suite, voice, guidelines</div></td><td class="r">1</td><td class="r">2,400.00</td><td class="r">2,400.00</td></tr>
+            <tr><td>Packaging design<div class="sub">Retail carton + label system</div></td><td class="r">3</td><td class="r">280.00</td><td class="r">840.00</td></tr>
+            <tr><td>Art direction · photoshoot</td><td class="r">1</td><td class="r">450.00</td><td class="r">450.00</td></tr>
+          </table>
+          <div class="ptot">
+            <div class="r"><span>Subtotal</span><span>3,690.00</span></div>
+            <div class="r"><span>Discount 5%</span><span>−184.50</span></div>
+            <div class="r"><span>Tax 8.5%</span><span>298.02</span></div>
+            <div class="r g"><span>Total due</span><span>3,803.52</span></div>
+          </div>
+          <div class="pnote">Thank you for your business. Payment is due within 14 days. Bank transfer to IBAN PT50 0002 0123 1234 · BIC BCOMPTPL.</div>
+          <div class="pfoot"><span>northwind.studio · hello@northwind.studio</span><span class="dots"><i></i><i></i><i></i></span></div>
+        </div>
+      </div>
+      <div class="pact"><div class="s">↗</div><div class="p">Save &amp; share PDF</div></div>
+    </div>
+  </div></div>
+</div>
+
+
+
+</html>

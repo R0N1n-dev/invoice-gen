@@ -1,0 +1,69 @@
+@font-face { font-family: "Instrument Serif"; src: url("fonts/instrument-serif-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-var.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Bricolage"; src: url("fonts/bricolage-var.woff2") format("woff2"); font-weight: 200 800; font-display: swap; }
+@font-face { font-family: "Jakarta"; src: url("fonts/jakarta-var.woff2") format("woff2"); font-weight: 200 800; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/mono-var.woff2") format("woff2"); font-weight: 100 800; font-display: swap; }
+@font-face { font-family: "Archivo"; src: url("fonts/archivo-var.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+
+*{ box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+html, body { margin: 0; }
+body {
+  background: #D9D6CE;
+  font-family: "Inter", system-ui, sans-serif;
+  color: #16130F;
+  padding: 54px 48px 60px;
+  display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start;
+  width: max-content;
+}
+.frame { width: 390px; }
+.caption {
+  display: flex; align-items: baseline; gap: 8px; margin: 0 0 13px 6px;
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #79736A;
+}
+.caption b { font-size: 13px; letter-spacing: .01em; text-transform: none; color: #2A2721; font-weight: 600; }
+.phone {
+  width: 390px; height: 844px; border-radius: 46px; padding: 10px; background: #0F0F0F;
+  box-shadow: 0 30px 60px -24px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.55);
+}
+.screen {
+  position: relative; width: 100%; height: 100%; border-radius: 37px; overflow: hidden;
+  background: var(--paper); color: var(--ink); display: flex; flex-direction: column; font-size: 14px;
+}
+.statusbar {
+  height: 44px; flex: none; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 22px; font-size: 12.5px; font-weight: 600; color: var(--status-ink, var(--ink));
+}
+.statusbar .icons { display: flex; gap: 5px; align-items: center; opacity: .8; }
+.body { flex: 1; overflow: hidden; padding: 0 20px; }
+.tabbar {
+  flex: none; height: 64px; border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: 5px;
+}
+.tab {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  font-size: 9px; letter-spacing: .05em; text-transform: uppercase; color: var(--tab-ink, #9A9385);
+}
+.tab .ic { font-size: 15px; line-height: 1; }
+.tab.on { color: var(--accent); font-weight: 600; }
+.kicker { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.money { font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.rule { height: 1px; background: var(--line); }
+
+/* shared invoice sheet inside PDF preview */
+.sheet { background: #fff; color: #191714; position: relative; overflow: hidden; }
+.sheet .sbrand { font-size: 19px; letter-spacing: -.01em; }
+.sheet .sdoc { font-size: 8.5px; letter-spacing: .26em; color: #92897A; margin-top: 26px; }
+.sheet .sno { font-size: 15px; margin-top: 4px; font-weight: 600; letter-spacing: -.01em; }
+.sheet .sdate { font-size: 8px; color: #8B8273; margin-top: 3px; }
+.sheet .cols { display: flex; gap: 16px; margin-top: 16px; border-top: 1px solid #E6DFD2; padding-top: 12px; }
+.sheet .cols > div { flex: 1; font-size: 7.6px; line-height: 1.55; color: #3F3A31; }
+.sheet .cols b { display: block; font-size: 6.4px; letter-spacing: .18em; color: #9B9284; margin-bottom: 4px; font-weight: 600; }
+.sheet table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 7.6px; }
+.sheet th { text-align: left; font-size: 6.2px; letter-spacing: .14em; color: #9B9284; border-bottom: 1px solid #E6DFD2; padding-bottom: 5px; font-weight: 600; }
+.sheet th.r, .sheet td.r { text-align: right; }
+.sheet td { padding: 7px 0; border-bottom: 1px solid #F0EBE0; color: #2E2A24; }
+.sheet .sub { color: #8B8273; font-size: 6.8px; margin-top: 2px; }
+.sheet .stot { margin-top: 12px; margin-left: auto; width: 56%; font-size: 8px; }
+.sheet .stot .r { display: flex; justify-content: space-between; padding: 2.5px 0; color: #6B6457; }
+.sheet .stot .r.g { border-top: 1px solid #191714; margin-top: 5px; padding-top: 6px; color: #191714; font-size: 10.5px; font-weight: 600; }
+.sheet .sfoot { position: absolute; left: 18px; right: 18px; bottom: 18px; border-top: 1px solid #E6DFD2; padding-top: 9px; font-size: 7px; color: #8B8273; display: flex; justify-content: space-between; }

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Billfold — UI directions</title>
+<link rel="stylesheet" href="base.css" />
+<style>
+  body{ background:#F2EFE9; display:block; width:auto; padding:48px 56px 72px; color:#17140F; }
+  .wrap{ max-width:1180px; margin:0 auto }
+  .eyebrow{ font-size:10.5px; letter-spacing:.22em; text-transform:uppercase; color:#8A8377; font-weight:600 }
+  h1{ font-family:"Instrument Serif",Georgia,serif; font-weight:400; font-size:56px; line-height:1.02; letter-spacing:-.02em; margin:10px 0 12px }
+  .lede{ font-size:14px; line-height:1.65; color:#5C564C; max-width:620px }
+  .rule{ height:1px; background:#DCD5C8; margin:34px 0 }
+  .opt{ display:grid; grid-template-columns:340px 1fr; gap:36px; align-items:center; margin:44px 0 }
+  .opt img{ width:340px; border-radius:16px; border:1px solid #D8D1C4; background:#fff; display:block }
+  .opt h2{ font-family:"Instrument Serif",Georgia,serif; font-size:34px; font-weight:400; margin:0 0 4px; letter-spacing:-.01em }
+  .opt .tag{ font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:#1E5B45; font-weight:600 }
+  .opt p{ font-size:13.5px; line-height:1.7; color:#55504A; margin:10px 0 0; max-width:560px }
+  .opt ul{ margin:12px 0 0; padding:0; list-style:none; display:flex; flex-wrap:wrap; gap:6px }
+  .opt li{ font-size:10.5px; border:1px solid #D8D1C4; border-radius:99px; padding:4px 9px; color:#6B655B }
+  .opt a{ display:inline-block; margin-top:14px; font-size:12px; font-weight:600; color:#1E5B45; text-decoration:none; border-bottom:1px solid #9CB5A8; padding-bottom:2px }
+  .foot{ margin-top:40px; border-top:1px solid #DCD5C8; padding-top:16px; font-size:11.5px; color:#8A8377; display:flex; justify-content:space-between }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Billfold · invoice generator · design directions</div>
+  <h1>Four ways to send a bill.</h1>
+  <div class="lede">Same product, same screens — dashboard, invoice list, editor, PDF preview. Pick the one that matches how you want to work; the chosen direction becomes the full design system (tokens, PDF layout, Android status bar and splash colours).</div>
+  <div class="rule"></div>
+
+  <div class="opt">
+    <a href="ledger.html"><img src="shots/ledger.png" alt="Ledger direction" /></a>
+    <div>
+      <div class="tag">Direction A</div>
+      <h2>Ledger</h2>
+      <p>Warm paper, ink and a single forest green. A serif voice for money, hairline rules instead of boxes, tabular figures everywhere. Reads like a well-kept account book — calm, expensive, accountant-approved.</p>
+      <ul><li>Editorial &amp; quiet</li><li>Serif numerals</li><li>Low chrome</li><li>Best for: studios, consultants</li></ul>
+      <a href="ledger.html">Open prototype →</a>
+    </div>
+  </div>
+
+  <div class="opt">
+    <a href="slate.html"><img src="shots/slate.png" alt="Slate direction" /></a>
+    <div>
+      <div class="tag">Direction B</div>
+      <h2>Slate</h2>
+      <p>Dark, dense and operational. A gradient hero card carries the outstanding balance, mono figures keep columns honest, status lives on a thin colour rail. Built for scanning a lot of invoices quickly, in bed, at 2am.</p>
+      <ul><li>Dark-first</li><li>Data dense</li><li>Mono figures</li><li>Best for: agencies, high volume</li></ul>
+      <a href="slate.html">Open prototype →</a>
+    </div>
+  </div>
+
+  <div class="opt">
+    <a href="bloom.html"><img src="shots/bloom.png" alt="Bloom direction" /></a>
+    <div>
+      <div class="tag">Direction C</div>
+      <h2>Bloom</h2>
+      <p>Soft lilac and peach, generous radii, floating pill navigation, a collection ring instead of a chart. Friendly without being childish — the direction that makes invoicing feel like less of a chore.</p>
+      <ul><li>Soft &amp; friendly</li><li>Floating nav</li><li>Rounded cards</li><li>Best for: freelancers, creatives</li></ul>
+      <a href="bloom.html">Open prototype →</a>
+    </div>
+  </div>
+
+  <div class="opt">
+    <a href="swiss.html"><img src="shots/swiss.png" alt="Swiss direction" /></a>
+    <div>
+      <div class="tag">Direction D</div>
+      <h2>Swiss</h2>
+      <p>Strict grid, black hairlines, monospaced labels and one vermilion accent. Everything is a table, nothing is a card. Maximum legibility, minimum decoration — the invoice as a document, not an app.</p>
+      <ul><li>Brutalist grid</li><li>Mono labels</li><li>Zero radius</li><li>Best for: print-minded, engineering</li></ul>
+      <a href="swiss.html">Open prototype →</a>
+    </div>
+  </div>
+
+  <div class="foot"><span>Rendered at 390 × 844 · 4 screens per direction</span><span>Billfold · Vue 3 · Vite 8 · Capacitor 8</span></div>
+</div>
+</body>
+</html>

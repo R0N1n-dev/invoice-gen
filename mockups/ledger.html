@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Billfold — Direction A · Ledger</title>
+<link rel="stylesheet" href="base.css" />
+<style>
+  :root{
+    --paper:#F2EEE5; --card:#FFFDF8; --ink:#181613; --muted:#8B8477; --line:#DED6C7;
+    --accent:#1E5B45; --accent-soft:#E3EDE6; --warn:#A8552B; --warn-soft:#F6E7DD;
+    --tab-ink:#9A9385;
+  }
+  body{ background:#D9D6CE; }
+  h1{ font-family:"Instrument Serif",Georgia,serif; font-weight:400; font-size:31px; line-height:1.08; margin:6px 0 2px; letter-spacing:-.01em }
+  .dh-top{ display:flex; justify-content:space-between; align-items:center; padding-top:2px }
+  .avatar{ width:34px;height:34px;border-radius:50%;background:var(--accent);color:#F6F2E8; display:grid;place-items:center;font-size:12px;font-weight:600;letter-spacing:.02em }
+  .hero{ margin-top:24px }
+  .hero .big{ font-family:"Instrument Serif",Georgia,serif; font-size:47px; line-height:1; letter-spacing:-.02em; font-variant-numeric:tabular-nums; margin:2px 0 8px }
+  .hero .sub{ font-size:11.5px; color:#7A7367; display:flex; gap:8px; align-items:center }
+  .dotsep{ width:3px;height:3px;border-radius:50%;background:#BDB5A6 }
+  .stats{ display:grid; grid-template-columns:1fr 1fr; margin-top:22px; border-top:1px solid var(--line); border-bottom:1px solid var(--line) }
+  .stat{ padding:14px 0 15px }
+  .stat + .stat{ border-left:1px solid var(--line); padding-left:16px }
+  .stat .v{ font-size:19px; font-weight:500; margin-top:5px; letter-spacing:-.02em }
+  .stat .v.warn{ color:var(--warn) }
+  .chart{ margin-top:20px; display:flex; gap:10px; height:84px }
+  .bar{ flex:1; display:flex; flex-direction:column; justify-content:flex-end; gap:6px; align-items:center; height:100% }
+  .bar i{ display:block; width:100%; background:#DDD5C5; border-radius:2px 2px 0 0; flex:none }
+  .bar.cur i{ background:var(--accent) }
+  .bar span{ font-size:8.5px; letter-spacing:.08em; color:#9C9486; text-transform:uppercase }
+  .section-head{ display:flex; justify-content:space-between; align-items:baseline; margin:20px 0 0 }
+  .section-head a{ font-size:11px; color:var(--accent); text-decoration:none; font-weight:500 }
+  .list{ margin-top:4px }
+  .row{ display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid #E7E0D2 }
+  .row:last-child{ border-bottom:0 }
+  .row .main{ flex:1; min-width:0 }
+  .row .t{ font-size:13.5px; font-weight:500; letter-spacing:-.01em }
+  .row .m{ font-size:10.5px; color:var(--muted); margin-top:3px; letter-spacing:.02em }
+  .row .amt{ font-size:13.5px; font-weight:500; letter-spacing:-.01em }
+  .pill{ font-size:8.6px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; padding:4px 6px; border-radius:3px; white-space:nowrap }
+  .pill.paid{ background:var(--accent-soft); color:#1B5340 }
+  .pill.sent{ background:#E8E4F1; color:#4C3E75 }
+  .pill.over{ background:var(--warn-soft); color:var(--warn) }
+  .pill.draft{ background:#EDE8DC; color:#7C7462 }
+  .page-head{ display:flex; align-items:flex-end; justify-content:space-between; padding-top:6px; margin-bottom:16px }
+  .icon-btn{ width:38px;height:38px;border-radius:50%;border:1px solid var(--line); display:grid;place-items:center; background:var(--card); font-size:16px }
+  .icon-btn.solid{ background:var(--accent); border-color:var(--accent); color:#fff }
+  .search{ display:flex; align-items:center; gap:9px; border-bottom:1px solid var(--line); padding:0 0 10px; color:var(--muted); font-size:13px }
+  .filters{ display:flex; gap:6px; margin:13px 0 4px }
+  .chip{ font-size:10.5px; padding:6px 10px; border-radius:999px; border:1px solid var(--line); color:#6F685C; background:transparent }
+  .chip.on{ background:var(--ink); color:#F7F3E9; border-color:var(--ink) }
+  .month{ font-size:9px; letter-spacing:.17em; text-transform:uppercase; color:#9C9486; margin:16px 0 0; display:flex; justify-content:space-between }
+  .invrow{ display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid #E7E0D2 }
+  .invrow .num{ font-size:10px; color:var(--muted); letter-spacing:.05em; font-variant-numeric:tabular-nums }
+  .invrow .who{ font-size:13.5px; font-weight:500; margin-top:3px; letter-spacing:-.01em }
+  .invrow .right{ text-align:right }
+  .invrow .right .amt{ font-size:13.5px; font-weight:500 }
+  .invrow .right .st{ margin-top:5px }
+
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:4px 0 8px }
+  .nav .title{ font-size:14px; font-weight:600; letter-spacing:-.01em }
+  .nav .save{ font-size:12.5px; color:var(--accent); font-weight:600 }
+  .field-label{ font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:#918A7D; font-weight:600; margin-bottom:7px }
+  .client-card{ padding:12px 13px; display:flex; align-items:center; gap:11px; background:var(--card); border:1px solid var(--line); border-radius:12px }
+  .client-card .ini{ width:30px;height:30px;border-radius:8px;background:var(--accent-soft);color:#1B5340;display:grid;place-items:center;font-size:11px;font-weight:600 }
+  .client-card .nm{ font-size:13.5px; font-weight:500 }
+  .client-card .ad{ font-size:10.5px; color:var(--muted); margin-top:2px }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:12px }
+  .mini{ background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 10px }
+  .mini .l{ font-size:8.4px; letter-spacing:.14em; text-transform:uppercase; color:#9A9285 }
+  .mini .v{ font-size:12px; margin-top:4px; font-weight:500 }
+  .items{ margin-top:14px }
+  .item{ background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-bottom:7px }
+  .item .top{ display:flex; justify-content:space-between; gap:8px }
+  .item .d{ font-size:12.5px; font-weight:500 }
+  .item .a{ font-size:12.5px; font-weight:600; font-variant-numeric:tabular-nums }
+  .item .bottom{ display:flex; justify-content:space-between; margin-top:4px; font-size:10.5px; color:var(--muted) }
+  .add{ border:1px dashed #CFC6B5; border-radius:10px; padding:10px; text-align:center; font-size:11.5px; color:#7E776A }
+  .totals{ margin-top:12px; padding:10px 0 0; border-top:1px solid var(--line) }
+  .trow{ display:flex; justify-content:space-between; font-size:12px; color:#6F685C; padding:2.5px 0 }
+  .trow.grand{ margin-top:6px; padding-top:8px; border-top:1px solid var(--line); align-items:baseline; color:var(--ink) }
+  .trow.grand .lab{ font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; font-weight:600 }
+  .trow.grand .val{ font-family:"Instrument Serif",Georgia,serif; font-size:25px; letter-spacing:-.01em }
+  .cta{ position:absolute; left:20px; right:20px; bottom:14px; background:var(--ink); color:#F7F3E9; border-radius:12px; padding:14px; text-align:center; font-size:12.5px; font-weight:600; letter-spacing:.02em; display:flex; align-items:center; justify-content:center; gap:8px }
+
+  .preview{ background:#191714; height:100%; margin:0 -20px; padding:0 20px 18px }
+  .preview .nav{ color:#EDE7DA }
+  .preview .nav .title{ font-size:11.5px; letter-spacing:.02em; color:#BDB4A3; font-weight:400 }
+  .layouts{ display:flex; gap:6px; justify-content:center; margin:2px 0 13px }
+  .layouts span{ font-size:10px; padding:5px 10px; border-radius:999px; border:1px solid #3A352D; color:#A69D8D }
+  .layouts span.on{ background:#EDE7DA; color:#191714; border-color:#EDE7DA; font-weight:600 }
+  .preview .sheet{ border-radius:3px; padding:20px 18px; height:596px; box-shadow:0 18px 40px -12px rgba(0,0,0,.6) }
+  .preview .sheet .sbrand{ font-family:"Instrument Serif",Georgia,serif }
+  .pv-actions{ display:flex; gap:8px; margin-top:13px }
+  .pv-actions .b{ flex:1; text-align:center; padding:12px; border-radius:11px; font-size:11.5px; font-weight:600; border:1px solid #3A352D; color:#E8E1D2 }
+  .pv-actions .b.pri{ background:var(--accent); border-color:var(--accent); color:#F4F1E7 }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="caption"><b>Ledger</b> · Dashboard</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="icons">▮▮▮ ⌁ ▰</span></div>
+    <div class="body">
+      <div class="dh-top"><div class="kicker">Northwind Studio</div><div class="avatar">AS</div></div>
+      <div class="hero">
+        <h1>Good morning,<br/>Ana.</h1>
+        <div class="kicker" style="margin-top:14px">Outstanding</div>
+        <div class="big">$12,480.00</div>
+        <div class="sub"><span>6 open invoices</span><i class="dotsep"></i><span style="color:var(--warn)">2 overdue</span></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="kicker">Paid this year</div><div class="v money">$84,200</div></div>
+        <div class="stat"><div class="kicker">Overdue</div><div class="v money warn">$2,150</div></div>
+      </div>
+      <div class="chart">
+        <div class="bar"><i style="height:30px"></i><span>May</span></div>
+        <div class="bar"><i style="height:44px"></i><span>Jun</span></div>
+        <div class="bar"><i style="height:35px"></i><span>Jul</span></div>
+        <div class="bar"><i style="height:56px"></i><span>Aug</span></div>
+        <div class="bar"><i style="height:48px"></i><span>Sep</span></div>
+        <div class="bar cur"><i style="height:66px"></i><span>Oct</span></div>
+      </div>
+      <div class="section-head"><div class="kicker">Recent</div><a>View all</a></div>
+      <div class="list">
+        <div class="row"><div class="main"><div class="t">Halcyon Coffee</div><div class="m">INV-2026-0041 · due 26 Mar</div></div><div class="amt money">$3,240</div><span class="pill over">Overdue</span></div>
+        <div class="row"><div class="main"><div class="t">Mira &amp; Co.</div><div class="m">INV-2026-0040 · due 02 Apr</div></div><div class="amt money">$1,800</div><span class="pill sent">Sent</span></div>
+        <div class="row"><div class="main"><div class="t">Northgate Labs</div><div class="m">INV-2026-0039 · paid 18 Mar</div></div><div class="amt money">$5,600</div><span class="pill paid">Paid</span></div>
+      </div>
+      <div style="margin-top:14px;border:1px solid var(--line);border-radius:10px;padding:11px 12px;display:flex;gap:10px;align-items:center;background:var(--card)">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;color:#1B5340;font-size:12px">↗</div>
+        <div style="flex:1;font-size:11px">4 invoices due this week<div style="font-size:9.5px;color:var(--muted);margin-top:2px">Send reminders in one tap</div></div>
+        <span style="font-size:10px;color:var(--accent);font-weight:600">Remind</span>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab on"><span class="ic">⌂</span><span>Home</span></div>
+      <div class="tab"><span class="ic">▤</span><span>Invoices</span></div>
+      <div class="tab"><span class="ic">◍</span><span>Clients</span></div>
+      <div class="tab"><span class="ic">▦</span><span>Items</span></div>
+      <div class="tab"><span class="ic">⚙</span><span>Settings</span></div>
+    </div>
+  </div></div>
+</div>
+
+<div class="frame">
+  <div class="caption"><b>Ledger</b> · Invoices</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="icons">▮▮▮ ⌁ ▰</span></div>
+    <div class="body">
+      <div class="page-head">
+        <div><div class="kicker">12 invoices · $18,730</div><h1 style="margin-top:4px;font-size:34px">Invoices</h1></div>
+        <div class="icon-btn solid">+</div>
+      </div>
+      <div class="search"><span>⌕</span><span>Search number, client…</span></div>
+      <div class="filters"><div class="chip on">All</div><div class="chip">Unpaid</div><div class="chip">Overdue</div><div class="chip">Paid</div><div class="chip">Draft</div></div>
+      <div class="month"><span>March 2026</span><span>$8,640</span></div>
+      <div class="invrow"><div style="flex:1"><div class="num">INV-2026-0041</div><div class="who">Halcyon Coffee</div></div><div class="right"><div class="amt money">$3,240</div><div class="st"><span class="pill over">Overdue</span></div></div></div>
+      <div class="invrow"><div style="flex:1"><div class="num">INV-2026-0040</div><div class="who">Mira &amp; Co.</div></div><div class="right"><div class="amt money">$1,800</div><div class="st"><span class="pill sent">Sent</span></div></div></div>
+      <div class="invrow"><div style="flex:1"><div class="num">INV-2026-0039</div><div class="who">Northgate Labs</div></div><div class="right"><div class="amt money">$5,600</div><div class="st"><span class="pill paid">Paid</span></div></div></div>
+      <div class="month"><span>February 2026</span><span>$6,900</span></div>
+      <div class="invrow"><div style="flex:1"><div class="num">INV-2026-0038</div><div class="who">Verity Health</div></div><div class="right"><div class="amt money">$4,100</div><div class="st"><span class="pill paid">Paid</span></div></div></div>
+      <div class="invrow"><div style="flex:1"><div class="num">INV-2026-0037</div><div class="who">Atlas Foundry</div></div><div class="right"><div class="amt money">$2,800</div><div class="st"><span class="pill draft">Draft</span></div></div></div>
+      <div class="invrow"><div style="flex:1"><div class="num">INV-2026-0036</div><div class="who">Halcyon Coffee</div></div><div class="right"><div class="amt money">$1,190</div><div class="st"><span class="pill paid">Paid</span></div></div></div>
+      <div class="invrow"><div style="flex:1"><div class="num">INV-2026-0035</div><div class="who">Mira &amp; Co.</div></div><div class="right"><div class="amt money">$980</div><div class="st"><span class="pill paid">Paid</span></div></div></div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><span class="ic">⌂</span><span>Home</span></div>
+      <div class="tab on"><span class="ic">▤</span><span>Invoices</span></div>
+      <div class="tab"><span class="ic">◍</span><span>Clients</span></div>
+      <div class="tab"><span class="ic">▦</span><span>Items</span></div>
+      <div class="tab"><span class="ic">⚙</span><span>Settings</span></div>
+    </div>
+  </div></div>
+</div>
+<div class="frame">
+  <div class="caption"><b>Ledger</b> · Invoice editor</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="icons">▮▮▮ ⌁ ▰</span></div>
+    <div class="body">
+      <div class="nav"><span style="font-size:18px">←</span><span class="title">New invoice</span><span class="save">Save</span></div>
+      <div class="field-label" style="margin-top:6px">Bill to</div>
+      <div class="client-card">
+        <div class="ini">HC</div>
+        <div style="flex:1"><div class="nm">Halcyon Coffee</div><div class="ad">Marta Silva · Lisbon, PT</div></div>
+        <span style="color:#A39B8C">⌄</span>
+      </div>
+      <div class="grid2">
+        <div class="mini"><div class="l">Number</div><div class="v money">INV-2026-0042</div></div>
+        <div class="mini"><div class="l">Currency</div><div class="v">USD &nbsp;$</div></div>
+        <div class="mini"><div class="l">Issued</div><div class="v">22 Mar 2026</div></div>
+        <div class="mini"><div class="l">Due</div><div class="v">05 Apr 2026</div></div>
+      </div>
+      <div class="items">
+        <div class="field-label">Line items</div>
+        <div class="item"><div class="top"><div class="d">Brand identity system</div><div class="a money">$2,400.00</div></div><div class="bottom"><span>1 × $2,400.00</span><span>Tax 8.5%</span></div></div>
+        <div class="item"><div class="top"><div class="d">Packaging design</div><div class="a money">$840.00</div></div><div class="bottom"><span>3 × $280.00</span><span>Tax 8.5%</span></div></div>
+        <div class="add">+ Add line item</div>
+      </div>
+      <div class="mini" style="margin-top:9px"><div class="l">Notes · shown on PDF</div><div class="v" style="font-weight:400;color:#6F685C;font-size:10.5px;margin-top:3px">Thank you for your business. Payment by bank transfer, Net 14.</div></div>
+      <div class="totals">
+        <div class="trow"><span>Subtotal</span><span class="money">$3,240.00</span></div>
+        <div class="trow"><span>Discount · 5%</span><span class="money">−$162.00</span></div>
+        <div class="trow"><span>Tax · 8.5%</span><span class="money">$256.65</span></div>
+        <div class="trow grand"><span class="lab">Total due</span><span class="val money">$3,334.65</span></div>
+      </div>
+    </div>
+    <div class="cta">▤ &nbsp;Preview PDF</div>
+  </div></div>
+</div>
+
+<div class="frame">
+  <div class="caption"><b>Ledger</b> · PDF preview</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar" style="background:#191714;--status-ink:#ECE5D6"><span>9:41</span><span class="icons">▮▮▮ ⌁ ▰</span></div>
+    <div class="preview">
+      <div class="nav"><span style="font-size:18px">←</span><span class="title">INV-2026-0041 · A4</span><span style="font-size:15px;color:#C9C0AF">⋯</span></div>
+      <div class="layouts"><span class="on">Classic</span><span>Modern</span><span>Minimal</span></div>
+      <div class="sheet">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div class="sbrand">Northwind Studio</div>
+          <div style="width:26px;height:26px;border-radius:50%;background:#1E5B45"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-end">
+          <div><div class="sdoc">INVOICE</div><div class="sno">INV-2026-0041</div><div class="sdate">Issued 12 Mar 2026 · Due 26 Mar 2026</div></div>
+          <div style="text-align:right;font-size:7px;color:#8B8273">Rua da Boavista 12<br/>Lisbon 1200-066, PT<br/>VAT PT512884221</div>
+        </div>
+        <div class="cols">
+          <div><b>BILL TO</b>Halcyon Coffee<br/>Attn. Marta Silva<br/>Rua do Alecrim 44<br/>Lisbon 1200-018<br/>marta@halcyon.coffee</div>
+          <div><b>PAYMENT</b>Bank transfer<br/>IBAN PT50 0002 0123 1234<br/>BIC BCOMPTPL<br/>Ref. INV-2026-0041</div>
+        </div>
+        <table>
+          <tr><th>DESCRIPTION</th><th class="r">QTY</th><th class="r">PRICE</th><th class="r">AMOUNT</th></tr>
+          <tr><td>Brand identity system<div class="sub">Logo suite, voice, guidelines</div></td><td class="r">1</td><td class="r">2,400.00</td><td class="r">2,400.00</td></tr>
+          <tr><td>Packaging design<div class="sub">Retail carton + label system</div></td><td class="r">3</td><td class="r">280.00</td><td class="r">840.00</td></tr>
+          <tr><td>Art direction · photoshoot</td><td class="r">1</td><td class="r">450.00</td><td class="r">450.00</td></tr>
+        </table>
+        <div class="stot">
+          <div class="r"><span>Subtotal</span><span>3,690.00</span></div>
+          <div class="r"><span>Discount 5%</span><span>−184.50</span></div>
+          <div class="r"><span>Tax 8.5%</span><span>298.02</span></div>
+          <div class="r g"><span>Total due</span><span>3,803.52</span></div>
+        </div>
+        <div class="sfoot"><span>Thank you for your business.</span><span>northwind.studio</span></div>
+      </div>
+      <div class="pv-actions"><div class="b">↗ &nbsp;Share</div><div class="b pri">↓ &nbsp;Save PDF</div></div>
+    </div>
+  </div></div>
+</div>
+
+
+
+</html>

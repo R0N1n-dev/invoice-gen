@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+.vite/
+.libs/
+mockups/node_modules/
+tools/shots/node_modules/
+android/.gradle/
+android/app/build/
+android/build/
+*.log
