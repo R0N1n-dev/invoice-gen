@@ -1,0 +1,141 @@
+# Billfold
+
+Offline-first invoice generator for Android and the web. **Slate** design direction:
+dark, gradient hero, mono figures, status rails. No account, no server, no telemetry,
+no haptics.
+
+![Dashboard](mockups/shots/app/01-dashboard.png)
+
+## Features
+
+**Invoicing**
+- Drafts -> issued -> partially paid -> paid, plus overdue and void
+- Line items with quantity, unit price, unit, per-line discount and per-line tax rate
+- Invoice-level percentage or fixed discount, shipping, multi-currency
+- Per-rate tax breakdown (mixed rates supported), proportional discount allocation
+- Partial payments ledger, mark-as-paid, automatic balance and status
+- Duplicate, void and delete; client details are snapshotted onto each invoice
+- Auto numbering (`INV-2026-0043`) with prefix, year toggle and editable counter
+
+**PDF**
+- Real vector A4 PDFs generated on-device with `pdf-lib`: three layouts
+  (`modern`, `classic`, `minimal`), live in-app preview, embedded logo, brand accent
+- DRAFT / VOID watermark, per-page footer, pagination for long invoices
+- Save to `Documents/Billfold/` on Android, native share sheet, browser download on web
+- Files are 2-5 KB and render in every PDF viewer (standard Helvetica, WinAnsi-safe)
+
+**Data**
+- Clients with contact, address, VAT ID, currency and payment terms
+- Reusable catalog of products/services with SKU, unit, default price and tax
+- Business profile: logo, address, VAT, bank details, accent colour
+- Settings: currency, locale, date format, tax default, terms, PDF template
+- JSON export / import, automatic on-device snapshots, demo data, erase-all
+
+**Android**
+- Native status bar and splash coloured to the theme, safe-area insets
+- Hardware back button: closes sheets -> goes back a route -> exits at the root
+- Filesystem + share sheet + keyboard resize; no vibration/haptics anywhere
+- Launcher icon, adaptive icon and splash generated from the in-app brand mark
+
+## Stack
+
+| Layer | Choice |
+| --- | --- |
+| UI | Vue 3.5 (`<script setup>`, TypeScript), custom design system on CSS variables |
+| Build | Vite 8 (rolldown), lazy-loaded PDF chunk |
+| State | Pinia 4 setup stores |
+| Storage | Dexie 4 on IndexedDB: transactional, indexed, blob-capable |
+| PDF | pdf-lib (pure JS, no native step) |
+| Native | Capacitor 8: app, filesystem, share, status-bar, splash-screen, keyboard |
+| Icons | `@lucide/vue` |
+
+## Why IndexedDB (Dexie) instead of SQLite
+
+The requirement was "offline, on device, no surprises". IndexedDB gives us:
+
+- **One storage engine on every platform** - the Android WebView and desktop browsers
+  run the exact same code path, so behaviour cannot diverge between web and APK.
+- **Transactions and indexes** for the queries this app needs (status, due date,
+  client, updated-at). Dexie's schema versioning handles future migrations.
+- **No extra native plugin** - nothing to compile, register, or break during a
+  Capacitor upgrade; the APK stays small.
+- **Large values** (a base64 logo) fit comfortably, unlike `localStorage`.
+
+`navigator.storage.persist()` is requested at boot so the OS treats the database as
+durable. On Android, JSON snapshots are also written to `Documents/Billfold/backups/`
+and can be re-imported from Settings - so even a wiped WebView store is recoverable.
+The data layer lives in `src/db/db.ts` and `src/stores/*`; swapping Dexie for SQLite
+later only touches those files.
+
+## Offline behaviour
+
+- No network requests at runtime: no remote fonts (Inter and JetBrains Mono are
+  bundled), no analytics, no API calls. Totals, stats, PDFs and backups are local.
+- `android:usesCleartextTraffic="false"`; the app works in airplane mode.
+- The manifest keeps `INTERNET` because Capacitor serves the app over a local scheme,
+  but the app never calls out.
+
+## Develop
+
+```bash
+npm install
+npm run dev            # http://localhost:5173 (hash routing)
+npm run typecheck      # vue-tsc
+npm run build          # dist/ + lazy pdf chunk
+```
+
+## Android
+
+Requires JDK 17 and the Android SDK (compileSdk 36, minSdk 24).
+
+```bash
+npm run cap:sync                  # build web + copy into android/
+npx cap open android              # Android Studio
+npm run android:build             # gradlew assembleDebug -> android/app/build/outputs/apk/debug/
+```
+
+Native configuration lives in `capacitor.config.ts` (app id `studio.billfold.app`,
+splash/status colours, keyboard mode) and
+`android/app/src/main/res/values/styles.xml` (dark theme, splash, system bars).
+
+> Authored in an environment without a JDK/Android SDK, so the APK itself was not
+> compiled here. The web build, `cap sync`, Gradle config, resources and manifest are
+> in place and verified as far as the tooling allowed.
+
+## Project layout
+
+```
+src/
+  db/            Dexie schema, backups, demo data
+  lib/           money (integer minor units), dates, totals engine, PDF, native bridge
+  stores/        settings, data, ui (toasts, confirm, sheet stack for back button)
+  components/    shell pieces, sheets, invoice preview, forms
+  views/         dashboard, invoices, editor, detail, clients, catalog, settings
+  styles/        design tokens + component styles
+android/         Capacitor Android project (themed, icons, splash)
+mockups/         the four design directions + screenshots of the shipped app
+tools/           screenshot / QA scripts (Playwright, PDF rendering)
+```
+
+Money is stored as integer minor units end-to-end (with per-currency exponents for
+JPY/KRW/KWD), so totals never drift. `src/lib/calc.ts` is the single source of truth
+for discounts, tax and balances.
+
+## QA
+
+Headless runs against the production build (`vite build` + static server):
+
+```bash
+cd tools/shots
+node app-test.mjs     # screenshots + PDF download + persistence + issued flow
+node flows-test.mjs   # 3 templates, payment, client CRUD, draft save, settings, filters
+node pdf-check.mjs /tmp/billfold-test.pdf   # page text + PNG render of the PDF
+```
+
+Latest results: 11 invoices persisted across reload, payments recalculate balances,
+all three PDF templates render with correct text, zero console errors.
+
+## No haptics
+
+`@capacitor/haptics` is not a dependency, no `navigator.vibrate` calls exist, and the
+Android manifest requests no vibration permission.

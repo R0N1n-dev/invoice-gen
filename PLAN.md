@@ -55,3 +55,16 @@ mockups/                  static design directions + screenshots
 7. Settings, backup/restore, onboarding.
 8. Capacitor Android platform, plugin config, back-button behaviour.
 9. Build, typecheck, headless smoke test (PDF bytes valid, navigation, CRUD).
+
+## 5. Status (delivered)
+
+- Design direction: **Slate** (B) chosen and shipped.
+- Storage: **Dexie 4 / IndexedDB** with `navigator.storage.persist()`, JSON snapshots to
+  `Documents/Billfold/backups/` on Android, manual export/import in Settings.
+- PDF: `pdf-lib`, three A4 layouts, live preview, save/share; standard Helvetica so the
+  files stay 2-5 KB and render everywhere (font subsetting of Inter is broken in
+  pdf-lib/fontkit, non-ASCII currency symbols fall back to ISO codes).
+- Android platform added, themed, icons + splash generated, manifest hardened; APK not
+  compiled here (no JDK/SDK in this environment).
+- Verified headlessly: CRUD, persistence across reload, payments, template switching,
+  PDF generation for all three layouts, zero console errors.
