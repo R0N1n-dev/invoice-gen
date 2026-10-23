@@ -1332,3 +1332,13 @@ select {
   color: var(--muted);
   margin-top: 4px;
 }
+
+.grid-2 > *,
+.grid-3 > * {
+  min-width: 0;
+}
+input,
+select,
+textarea {
+  min-width: 0;
+}

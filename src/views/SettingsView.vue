@@ -184,7 +184,7 @@ async function eraseAll() {
         <h1 class="page-title">Settings</h1>
         <div class="page-sub">Business identity, invoice defaults and local backups</div>
       </div>
-      <button class="btn primary sm" type="button" :disabled="!dirty" @click="save">
+      <button class="btn sm" :class="dirty ? 'primary' : 'ghost'" type="button" :disabled="!dirty" @click="save">
         {{ dirty ? 'Save' : 'Saved' }}
       </button>
     </div>

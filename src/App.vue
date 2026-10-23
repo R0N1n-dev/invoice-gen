@@ -13,7 +13,7 @@ import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { useDataStore } from '@/stores/data'
 import { useSettingsStore } from '@/stores/settings'
 import { useUiStore } from '@/stores/ui'
-import { hideSplash, isNative, exitApp, onBackButton, writeBackupFile, initNative } from '@/lib/native'
+import { hideSplash, isNative, exitApp, onBackButton, onAppStateChange, writeBackupFile, initNative } from '@/lib/native'
 import { debounce } from '@/lib/utils'
 
 const route = useRoute()
@@ -34,21 +34,29 @@ const hideNav = computed(() => Boolean(route.meta.hideNav))
 const isActive = (to: string) => (to === '/' ? route.path === '/' : route.path.startsWith(to))
 
 let removeBack: (() => void) | undefined
+let removeState: (() => void) | undefined
 onMounted(async () => {
   removeBack = onBackButton(() => {
     if (ui.closeTopSheet()) return
     if (route.meta.hideNav) {
-      router.back()
+      if (window.history.length > 1) router.back()
+      else router.replace('/invoices')
       return
     }
     if (route.path !== '/') router.push('/')
     else void exitApp()
   })
+  removeState = onAppStateChange((isActive) => {
+    if (!isActive) void autoBackup()
+  })
   await nextTick()
   await hideSplash()
 })
 
-onBeforeUnmount(() => removeBack?.())
+onBeforeUnmount(() => {
+  removeBack?.()
+  removeState?.()
+})
 
 const autoBackup = debounce(async () => {
   if (!isNative || !settings.settings.autoBackup) return

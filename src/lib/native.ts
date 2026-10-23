@@ -45,6 +45,16 @@ export function onBackButton(handler: () => void): () => void {
   return () => remove?.()
 }
 
+/** Run a callback when the app moves between foreground and background. */
+export function onAppStateChange(handler: (isActive: boolean) => void): () => void {
+  if (!isNative) return () => undefined
+  let remove: (() => void) | undefined
+  App.addListener('appStateChange', ({ isActive }) => handler(isActive)).then((l) => {
+    remove = () => l.remove()
+  })
+  return () => remove?.()
+}
+
 export async function exitApp(): Promise<void> {
   if (!isNative) return
   try {
