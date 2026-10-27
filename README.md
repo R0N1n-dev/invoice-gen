@@ -32,9 +32,11 @@ no haptics.
 - JSON export / import, automatic on-device snapshots, demo data, erase-all
 
 **Android**
-- Native status bar and splash coloured to the theme, safe-area insets
-- Hardware back button: closes sheets -> goes back a route -> exits at the root
-- Filesystem + share sheet + keyboard resize; no vibration/haptics anywhere
+- True edge-to-edge with window insets applied natively (`SystemBars`, `insetsHandling: native`),
+  so scrolling content can never slide under the status bar or behind the nav bar
+- Hardware back button: sheet/dialog -> keyboard -> editor (discard guard) -> parent screen ->
+  "Exit Billfold?" confirmation
+- Filesystem + share sheet + keyboard-aware insets; no vibration/haptics anywhere
 - Launcher icon, adaptive icon and splash generated from the in-app brand mark
 
 ## Stack
@@ -46,7 +48,7 @@ no haptics.
 | State | Pinia 4 setup stores |
 | Storage | Dexie 4 on IndexedDB: transactional, indexed, blob-capable |
 | PDF | pdf-lib (pure JS, no native step) |
-| Native | Capacitor 8: app, filesystem, share, status-bar, splash-screen, keyboard |
+| Native | Capacitor 8: app, filesystem, share, splash-screen, keyboard + built-in SystemBars |
 | Icons | `@lucide/vue` |
 
 ## Why IndexedDB (Dexie) instead of SQLite
@@ -95,8 +97,26 @@ npm run android:build             # gradlew assembleDebug -> android/app/build/o
 ```
 
 Native configuration lives in `capacitor.config.ts` (app id `studio.billfold.app`,
-splash/status colours, keyboard mode) and
+splash colours, `SystemBars` inset handling, keyboard) and
 `android/app/src/main/res/values/styles.xml` (dark theme, splash, system bars).
+
+### Status bar / insets
+
+Android 15+ enforces edge-to-edge for apps targeting SDK 35+, and the legacy
+`@capacitor/status-bar` overlay API no longer changes layout there. Billfold therefore:
+
+1. draws edge-to-edge (`WindowCompat.setDecorFitsSystemWindows(window, false)` in
+   `MainActivity`, transparent bars),
+2. lets Capacitor 8's built-in **SystemBars** plugin measure the status bar, navigation bar,
+   cutout and IME insets and apply them as window padding (`insetsHandling: 'native'`),
+3. keeps the web layer out of window layout entirely - it never calls overlay APIs and the
+   CSS `env(safe-area-inset-*)` values stay `0` because `viewport-fit=cover` is intentionally
+   absent.
+
+The result is a single source of truth for insets: content is clipped above the status bar,
+the tab bar sits above the gesture/navigation area, and the keyboard shrinks the page
+without double spacing. `SystemBars` also sets light icons on the dark theme from config,
+so no runtime status-bar calls are needed.
 
 > Authored in an environment without a JDK/Android SDK, so the APK itself was not
 > compiled here. The web build, `cap sync`, Gradle config, resources and manifest are
@@ -129,6 +149,7 @@ Headless runs against the production build (`vite build` + static server):
 cd tools/shots
 node app-test.mjs     # screenshots + PDF download + persistence + issued flow
 node flows-test.mjs   # 3 templates, payment, client CRUD, draft save, settings, filters
+node back-test.mjs    # Android back order: exit prompt, parent route, sheet, blur, discard guard
 node pdf-check.mjs /tmp/billfold-test.pdf   # page text + PNG render of the PDF
 ```
 

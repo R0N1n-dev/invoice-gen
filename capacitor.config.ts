@@ -16,14 +16,15 @@ const config: CapacitorConfig = {
       androidScaleType: 'CENTER_CROP',
       showSpinner: false,
     },
-    StatusBar: {
+    // Capacitor 8's built-in system bar handling. "native" applies the status bar,
+    // navigation bar, cutout and keyboard insets as window padding, so web content
+    // can never scroll underneath the system bars on Android 15+ edge-to-edge.
+    SystemBars: {
       style: 'DARK',
-      backgroundColor: '#080B10',
-      overlaysWebView: false,
+      insetsHandling: 'native',
     },
     Keyboard: {
       resize: 'native',
-      resizeOnFullScreen: true,
     },
   },
 }

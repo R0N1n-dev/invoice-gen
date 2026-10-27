@@ -35,17 +35,54 @@ const isActive = (to: string) => (to === '/' ? route.path === '/' : route.path.s
 
 let removeBack: (() => void) | undefined
 let removeState: (() => void) | undefined
-onMounted(async () => {
-  removeBack = onBackButton(() => {
-    if (ui.closeTopSheet()) return
-    if (route.meta.hideNav) {
-      if (window.history.length > 1) router.back()
-      else router.replace('/invoices')
-      return
-    }
-    if (route.path !== '/') router.push('/')
-    else void exitApp()
+let exitPromptOpen = false
+
+/**
+ * Android back button, in order of precedence:
+ * sheet/dialog -> keyboard -> editor -> parent screen -> exit confirmation.
+ */
+async function handleBack() {
+  if (ui.closeTopSheet()) return
+
+  const active = document.activeElement as HTMLElement | null
+  if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) {
+    active.blur()
+    return
+  }
+
+  if (route.meta.hideNav) {
+    // Push (not back) so the editor's async discard guard can finish before the
+    // URL changes; history.back() would rewrite the hash while the prompt is open.
+    const previous = (window.history.state as { back?: string } | null)?.back
+    const target = previous && previous.startsWith('/invoices') ? previous : '/invoices'
+    await router.push(target)
+    return
+  }
+
+  if (route.path !== '/') {
+    await router.push(route.path.startsWith('/invoices/') ? '/invoices' : '/')
+    return
+  }
+
+  if (exitPromptOpen) return
+  exitPromptOpen = true
+  const leave = await ui.confirm({
+    title: 'Exit Billfold?',
+    message: 'Everything is saved on this device — your invoices will be here when you come back.',
+    confirmLabel: 'Exit',
+    cancelLabel: 'Stay',
   })
+  exitPromptOpen = false
+  if (leave) await exitApp()
+}
+
+// Dev-only hook so the Android back flow can be exercised in a desktop browser.
+if (import.meta.env.DEV) {
+  ;(window as unknown as { __billfoldBack?: () => Promise<void> }).__billfoldBack = handleBack
+}
+
+onMounted(async () => {
+  removeBack = onBackButton(() => void handleBack())
   removeState = onAppStateChange((isActive) => {
     if (!isActive) void autoBackup()
   })

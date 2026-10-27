@@ -2,20 +2,21 @@ import { Capacitor } from '@capacitor/core'
 import { App } from '@capacitor/app'
 import { Directory, Filesystem } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
-import { StatusBar, Style } from '@capacitor/status-bar'
+import { SystemBars, SystemBarsStyle } from '@capacitor/core'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { Keyboard } from '@capacitor/keyboard'
 import { bytesToBase64, downloadBlob } from './utils'
 
 export const isNative = Capacitor.isNativePlatform()
 
-/** Boot the native shell: status bar, splash, keyboard. No haptics anywhere. */
+/** Boot the native shell: system bars, splash, keyboard. No haptics anywhere. */
 export async function initNative(): Promise<void> {
   if (!isNative) return
+
+  // SystemBars owns edge-to-edge: it pads the window with the real insets and keeps
+  // the bars dark. We never touch the window layout from the web layer.
   try {
-    await StatusBar.setOverlaysWebView({ overlay: false })
-    await StatusBar.setStyle({ style: Style.Dark })
-    await StatusBar.setBackgroundColor({ color: '#080B10' })
+    await SystemBars.setStyle({ style: SystemBarsStyle.Dark })
   } catch {
     /* plugin missing on this platform build */
   }

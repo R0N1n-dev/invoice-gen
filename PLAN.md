@@ -68,3 +68,15 @@ mockups/                  static design directions + screenshots
   compiled here (no JDK/SDK in this environment).
 - Verified headlessly: CRUD, persistence across reload, payments, template switching,
   PDF generation for all three layouts, zero console errors.
+
+## 6. Android insets + back button (fix)
+
+- Removed the deprecated `@capacitor/status-bar` plugin and all overlay calls. On Android 15+
+  the edge-to-edge enforcement made those calls no-ops, so content scrolled under the bar.
+- `MainActivity` now only enables edge-to-edge; Capacitor 8's built-in **SystemBars** plugin
+  (`insetsHandling: 'native'`, `style: 'DARK'`) applies status bar, navigation bar, cutout and
+  IME insets as window padding. One source of truth, no CSS double-spacing, no overlap while
+  scrolling.
+- Back button order: sheet/dialog -> keyboard blur -> editor (discard guard, guarded push so the
+  URL does not change before confirmation) -> parent screen -> "Exit Billfold?" confirmation.
+- Covered by `tools/shots/back-test.mjs` via a dev-only `window.__billfoldBack` hook.
