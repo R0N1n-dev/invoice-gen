@@ -33,6 +33,17 @@ const nav = [
 const hideNav = computed(() => Boolean(route.meta.hideNav))
 const isActive = (to: string) => (to === '/' ? route.path === '/' : route.path.startsWith(to))
 
+const autoBackup = debounce(async () => {
+  if (!isNative || !settings.settings.autoBackup) return
+  const payload = {
+    app: 'billfold' as const,
+    version: 1 as const,
+    exportedAt: new Date().toISOString(),
+    ...settings.snapshot(),
+  }
+  await writeBackupFile(JSON.stringify(payload))
+}, 4000)
+
 let removeBack: (() => void) | undefined
 let removeState: (() => void) | undefined
 let exitPromptOpen = false
@@ -94,17 +105,6 @@ onBeforeUnmount(() => {
   removeBack?.()
   removeState?.()
 })
-
-const autoBackup = debounce(async () => {
-  if (!isNative || !settings.settings.autoBackup) return
-  const payload = {
-    app: 'billfold' as const,
-    version: 1 as const,
-    exportedAt: new Date().toISOString(),
-    ...settings.snapshot(),
-  }
-  await writeBackupFile(JSON.stringify(payload))
-}, 4000)
 
 watch(() => [data.revision, settings.settings.autoBackup], autoBackup)
 
