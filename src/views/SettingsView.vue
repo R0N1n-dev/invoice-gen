@@ -2,6 +2,7 @@
 import { computed, reactive, ref } from 'vue'
 import {
   BadgeCheck,
+  Check,
   Building2,
   Database,
   FileDown,
@@ -14,11 +15,13 @@ import {
   Upload,
 } from '@lucide/vue'
 import AppSheet from '@/components/AppSheet.vue'
+import AppSelect from '@/components/AppSelect.vue'
 import { useSettingsStore } from '@/stores/settings'
 import { useDataStore } from '@/stores/data'
 import { useUiStore } from '@/stores/ui'
 import { CURRENCIES, LOCALES } from '@/lib/money'
 import { isNative, saveTextFile } from '@/lib/native'
+import { FONTS, THEMES, fontById, themeById, themeSwatches } from '@/lib/themes'
 import { restoreBackup, type BackupFile } from '@/db/db'
 import type { Business, Settings } from '@/types'
 
@@ -31,6 +34,49 @@ const prefs = reactive<Settings>(JSON.parse(JSON.stringify(settings.settings)))
 const dirty = ref(false)
 const showAbout = ref(false)
 const importRef = ref<HTMLInputElement | null>(null)
+
+const currencyOptions = CURRENCIES.map((c) => ({ value: c, label: c }))
+const localeOptions = LOCALES.map((l) => ({ value: l, label: l }))
+const dateFormatOptions = [
+  { value: 'medium', label: '24 Mar 2026', hint: 'Day, short month, year' },
+  { value: 'short', label: '24/03/2026', hint: 'Day, month, year' },
+  { value: 'iso', label: '2026-03-24', hint: 'ISO 8601' },
+]
+const templateOptions = [
+  { value: 'modern', label: 'Modern', hint: 'Accent band, big total' },
+  { value: 'classic', label: 'Classic', hint: 'Letterhead, ruled table' },
+  { value: 'minimal', label: 'Minimal', hint: 'Document, black total bar' },
+]
+const termsOptions = [
+  { value: 0, label: 'On receipt' },
+  { value: 7, label: 'Net 7' },
+  { value: 14, label: 'Net 14' },
+  { value: 30, label: 'Net 30' },
+  { value: 45, label: 'Net 45' },
+  { value: 60, label: 'Net 60' },
+]
+
+const modes = [
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'system', label: 'System' },
+] as const
+
+const currentTheme = computed(() => themeById(settings.settings.themeId))
+const currentFont = computed(() => fontById(settings.settings.fontId))
+
+function setMode(mode: 'light' | 'dark' | 'system') {
+  prefs.colorMode = mode
+  void settings.saveSettings({ colorMode: mode })
+}
+function setTheme(id: string) {
+  prefs.themeId = id
+  void settings.saveSettings({ themeId: id })
+}
+function setFont(id: string) {
+  prefs.fontId = id
+  void settings.saveSettings({ fontId: id })
+}
 
 const accentPresets = ['#7C93FF', '#3FDD9B', '#FFB86B', '#FF6B81', '#B78CFF', '#0EA5E9', '#0A0A0A']
 
@@ -189,6 +235,70 @@ async function eraseAll() {
       </button>
     </div>
 
+    <div class="settings-title">Appearance</div>
+    <div class="settings-card" style="padding: 14px">
+      <div class="between" style="align-items: flex-start">
+        <div>
+          <div style="font-size: 12.5px; font-weight: 600">Colour mode</div>
+          <div class="tiny dim" style="margin-top: 2px">Light, dark, or follow the system.</div>
+        </div>
+      </div>
+      <div class="segmented" style="margin-top: 10px">
+        <button
+          v-for="m in modes"
+          :key="m.value"
+          type="button"
+          :class="{ on: prefs.colorMode === m.value }"
+          @click="setMode(m.value)"
+        >
+          {{ m.label }}
+        </button>
+      </div>
+
+      <div class="between" style="margin: 16px 0 8px; align-items: baseline">
+        <div style="font-size: 12.5px; font-weight: 600">Theme</div>
+        <span class="tiny dim">{{ currentTheme.useCase }}</span>
+      </div>
+      <div class="theme-grid">
+        <button
+          v-for="t in THEMES"
+          :key="t.id"
+          type="button"
+          class="theme-card"
+          :class="{ on: prefs.themeId === t.id }"
+          @click="setTheme(t.id)"
+        >
+          <span class="theme-swatches">
+            <i v-for="(c, i) in themeSwatches(t)" :key="i" :style="{ background: c }"></i>
+          </span>
+          <span class="theme-name">{{ t.name }}</span>
+          <span class="theme-kind">{{ t.kind === 'dual' ? 'Dual tone' : 'Triple tone' }}</span>
+          <Check v-if="prefs.themeId === t.id" :size="14" class="theme-tick" />
+        </button>
+      </div>
+
+      <div class="between" style="margin: 16px 0 8px; align-items: baseline">
+        <div style="font-size: 12.5px; font-weight: 600">Typeface</div>
+        <span class="tiny dim">{{ currentFont.vibe }}</span>
+      </div>
+      <div class="scrim-list">
+        <button
+          v-for="f in FONTS"
+          :key="f.id"
+          type="button"
+          class="quick font-row"
+          :class="{ chosen: prefs.fontId === f.id }"
+          @click="setFont(f.id)"
+        >
+          <span class="grow" style="text-align: left">
+            <span class="font-sample" :style="{ fontFamily: f.stack }">{{ f.name }}</span>
+            <span class="row-sub">{{ f.vibe }}</span>
+          </span>
+          <Check v-if="prefs.fontId === f.id" :size="16" class="font-tick" />
+        </button>
+      </div>
+    </div>
+
     <div class="settings-title">Business profile</div>
     <div class="settings-card" style="padding: 14px">
       <div class="logo-picker" style="padding-top: 0">
@@ -313,33 +423,21 @@ async function eraseAll() {
       <div class="grid-2">
         <label class="field">
           <span class="label">Currency</span>
-          <select v-model="prefs.currency" @change="markDirty">
-            <option v-for="c in CURRENCIES" :key="c" :value="c">{{ c }}</option>
-          </select>
+          <AppSelect v-model="prefs.currency" label="Currency" :options="currencyOptions" @update:model-value="markDirty" />
         </label>
         <label class="field">
           <span class="label">Locale</span>
-          <select v-model="prefs.locale" @change="markDirty">
-            <option v-for="l in LOCALES" :key="l" :value="l">{{ l }}</option>
-          </select>
+          <AppSelect v-model="prefs.locale" label="Locale" :options="localeOptions" @update:model-value="markDirty" />
         </label>
       </div>
       <div class="grid-2">
         <label class="field">
           <span class="label">Date format</span>
-          <select v-model="prefs.dateFormat" @change="markDirty">
-            <option value="medium">24 Mar 2026</option>
-            <option value="short">24/03/2026</option>
-            <option value="iso">2026-03-24</option>
-          </select>
+          <AppSelect v-model="prefs.dateFormat" label="Date format" :options="dateFormatOptions" @update:model-value="markDirty" />
         </label>
         <label class="field">
           <span class="label">Default PDF template</span>
-          <select v-model="prefs.defaultTemplate" @change="markDirty">
-            <option value="modern">Modern</option>
-            <option value="classic">Classic</option>
-            <option value="minimal">Minimal</option>
-          </select>
+          <AppSelect v-model="prefs.defaultTemplate" label="PDF template" :options="templateOptions" @update:model-value="markDirty" />
         </label>
       </div>
       <div class="grid-3">
@@ -353,14 +451,7 @@ async function eraseAll() {
         </label>
         <label class="field">
           <span class="label">Payment terms</span>
-          <select v-model.number="prefs.paymentTermsDays" @change="markDirty">
-            <option :value="0">On receipt</option>
-            <option :value="7">Net 7</option>
-            <option :value="14">Net 14</option>
-            <option :value="30">Net 30</option>
-            <option :value="45">Net 45</option>
-            <option :value="60">Net 60</option>
-          </select>
+          <AppSelect v-model="prefs.paymentTermsDays" label="Payment terms" :options="termsOptions" @update:model-value="markDirty" />
         </label>
       </div>
       <label class="toggle-row">
@@ -493,6 +584,70 @@ async function eraseAll() {
 </template>
 
 <style scoped>
+.theme-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.theme-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  border-radius: 13px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  text-align: left;
+}
+.theme-card.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.theme-swatches {
+  display: flex;
+  gap: 3px;
+  height: 18px;
+}
+.theme-swatches i {
+  flex: 1;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+}
+.theme-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.theme-kind {
+  font-size: 9px;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.theme-tick {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  color: var(--link);
+}
+.font-row {
+  padding: 10px 12px;
+}
+.font-row.chosen {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+.font-sample {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.font-tick {
+  flex: none;
+  color: var(--link);
+}
 .color-input {
   width: 46px;
   height: 38px;
@@ -507,9 +662,9 @@ async function eraseAll() {
   height: 34px;
   border-radius: 10px;
   border: 2px solid transparent;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 1px var(--line);
 }
 .swatch.on {
-  border-color: #fff;
+  border-color: var(--ink);
 }
 </style>

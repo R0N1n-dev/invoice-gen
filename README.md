@@ -24,6 +24,13 @@ no haptics.
 - Save to `Documents/Billfold/` on Android, native share sheet, browser download on web
 - Files are 2-5 KB and render in every PDF viewer (standard Helvetica, WinAnsi-safe)
 
+**Appearance**
+- Light, dark or system mode, applied instantly and persisted on device
+- 10 themes: Slate Indigo plus the nine supplied palettes (5 dual-tone, 4 triple-tone)
+- 5 bundled typefaces: Plus Jakarta Sans, Satoshi, Outfit, Geist Sans, Cabinet Grotesk
+- Every theme is generated from its palette at runtime (surfaces, borders, states, hero
+  gradient) and audited for WCAG contrast in both modes
+
 **Data**
 - Clients with contact, address, VAT ID, currency and payment terms
 - Reusable catalog of products/services with SKU, unit, default price and tax
@@ -49,6 +56,7 @@ no haptics.
 | Storage | Dexie 4 on IndexedDB: transactional, indexed, blob-capable |
 | PDF | pdf-lib (pure JS, no native step) |
 | Native | Capacitor 8: app, filesystem, share, splash-screen, keyboard + built-in SystemBars |
+| Theming | runtime CSS custom properties generated from palette + mode |
 | Icons | `@lucide/vue` |
 
 ## Why IndexedDB (Dexie) instead of SQLite
@@ -85,6 +93,37 @@ npm run dev            # http://localhost:5173 (hash routing)
 npm run typecheck      # vue-tsc
 npm run build          # dist/ + lazy pdf chunk
 ```
+
+## Appearance & themes
+
+Settings -> Appearance switches colour mode, palette and typeface. Nothing is hardcoded
+per component: `src/lib/themes.ts` turns a palette into the full token set
+(`--bg`, `--surface*`, `--line*`, `--ink*`, `--accent*`, state colours, hero gradient,
+chrome, scrim, glow) for the active mode, and `applyAppearance()` writes it onto
+`<html>`. Switching mode also restyles the Android status bar icons.
+
+| Theme | Palette |
+| --- | --- |
+| Slate Indigo | `#1B2350` · `#7C93FF` · `#B78CFF` |
+| Classic Corporate | `#1E2761` · `#408EC6` |
+| Energetic Retail | `#2C3E50` · `#E67E22` |
+| Eco-Organic | `#2C5F2D` · `#97BC62` |
+| Cyber High-Contrast | `#1A1A1A` · `#C1DD13` |
+| Minimalist Editorial | `#CC313D` · `#F7C5CC` |
+| The High-End Trio | `#1E2761` · `#408EC6` · `#7A2048` |
+| The Bright Tech Vibe | `#2D3047` · `#2EC4B6` · `#FF7A59` |
+| The Playful Pastel | `#B298E7` · `#B8E3E9` · `#F5B8D5` |
+| The Earthy Muted | `#4A5842` · `#EFEBE4` · `#D98A6C` |
+
+Modes: light, dark, system. Fonts are vendored as woff2 (OFL for the Google families,
+free Fontshare licence for Satoshi and Cabinet Grotesk) so the app stays fully offline.
+
+### Pickers
+
+Native `<select>` popups are rendered by the WebView with a transparent window on Android,
+which is why the invoice-default dropdowns looked broken. Every select is now an
+`AppSelect` component: a field that opens an in-app bottom sheet with the options, a tick
+on the current value and the same look in both themes. No native dropdowns remain.
 
 ## Android
 
@@ -150,6 +189,9 @@ cd tools/shots
 node app-test.mjs     # screenshots + PDF download + persistence + issued flow
 node flows-test.mjs   # 3 templates, payment, client CRUD, draft save, settings, filters
 node back-test.mjs    # Android back order: exit prompt, parent route, sheet, blur, discard guard
+node select-test.mjs  # every custom picker: settings, editor, catalog, clients + persistence
+node theme-test.mjs   # screenshots of all 10 themes in both modes and all 5 fonts
+node theme-audit.mjs  # WCAG contrast audit for each theme/mode (fails under 3:1)
 node pdf-check.mjs /tmp/billfold-test.pdf   # page text + PNG render of the PDF
 ```
 

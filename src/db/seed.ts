@@ -40,6 +40,9 @@ export const DEFAULT_SETTINGS: Settings = {
   defaultTemplate: 'modern',
   autoBackup: true,
   onboarded: false,
+  themeId: 'slate',
+  colorMode: 'dark',
+  fontId: 'jakarta',
 }
 
 const DAY = 86_400_000

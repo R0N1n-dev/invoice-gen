@@ -80,3 +80,16 @@ mockups/                  static design directions + screenshots
 - Back button order: sheet/dialog -> keyboard blur -> editor (discard guard, guarded push so the
   URL does not change before confirmation) -> parent screen -> "Exit Billfold?" confirmation.
 - Covered by `tools/shots/back-test.mjs` via a dev-only `window.__billfoldBack` hook.
+
+## 7. Appearance system + picker fix
+
+- Native `<select>` popups render with a transparent window inside the Android WebView, so
+  the invoice-default dropdowns looked broken. All 11 selects were replaced with a custom
+  `AppSelect` (field + bottom-sheet list + tick), used by settings, editor, catalog, clients
+  and payments.
+- Added light/dark/system modes and the nine supplied palettes (plus Slate Indigo), generated
+  as CSS tokens at runtime (`src/lib/themes.ts`) and persisted in settings.
+- Added five bundled typefaces (Plus Jakarta Sans, Satoshi, Outfit, Geist Sans, Cabinet
+  Grotesk) with a picker; all files are vendored woff2 for offline use.
+- Status bar icon style follows the active mode on Android.
+- Automated contrast audit across 10 themes x 2 modes: worst small-text ratio 4.21:1.

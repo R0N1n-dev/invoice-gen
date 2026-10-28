@@ -4,6 +4,7 @@ import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { ArrowLeft, BookPlus, Plus, Trash2, Users } from '@lucide/vue'
 import Money from '@/components/Money.vue'
 import AppSheet from '@/components/AppSheet.vue'
+import AppSelect from '@/components/AppSelect.vue'
 import ClientForm from '@/components/ClientForm.vue'
 import { useDataStore } from '@/stores/data'
 import { useSettingsStore } from '@/stores/settings'
@@ -54,6 +55,12 @@ const nextNumberPreview = computed(() =>
     settings.settings.nextNumber,
   ).padStart(4, '0')}`,
 )
+
+const currencyOptions = CURRENCIES.map((c) => ({ value: c, label: c }))
+const discountOptions = computed(() => [
+  { value: 'percent', label: '%' },
+  { value: 'fixed', label: symbol.value },
+])
 
 const filteredClients = computed(() => {
   const q = clientQuery.value.trim().toLowerCase()
@@ -305,9 +312,7 @@ onBeforeRouteLeave(async () => {
     <div class="grid-2">
       <label class="field">
         <span class="label">Currency</span>
-        <select v-model="draft.currency" @change="markDirty">
-          <option v-for="c in CURRENCIES" :key="c" :value="c">{{ c }}</option>
-        </select>
+        <AppSelect v-model="draft.currency" label="Currency" :options="currencyOptions" @update:model-value="markDirty" />
       </label>
       <label class="field">
         <span class="label">PO number</span>
@@ -371,10 +376,7 @@ onBeforeRouteLeave(async () => {
       <label class="field">
         <span class="label">Invoice discount</span>
         <div class="row">
-          <select v-model="draft.discountType" style="width: 84px" @change="markDirty">
-            <option value="percent">%</option>
-            <option value="fixed">{{ symbol }}</option>
-          </select>
+          <AppSelect v-model="draft.discountType" label="Discount type" compact :options="discountOptions" @update:model-value="markDirty" />
           <input v-model.number="invoiceDiscountValue" type="number" min="0" step="0.01" inputmode="decimal" />
         </div>
       </label>
@@ -512,8 +514,8 @@ onBeforeRouteLeave(async () => {
   margin-top: 7px;
   font-size: 12px;
   padding: 8px 10px;
-  background: #0d131d;
-  border-color: #1a2230;
+  background: var(--field);
+  border-color: var(--line);
 }
 .line-grid {
   display: grid;
@@ -537,7 +539,7 @@ onBeforeRouteLeave(async () => {
   padding: 7px 8px;
   font-size: 12px;
   border-radius: 8px;
-  background: #0d131d;
-  border-color: #1a2230;
+  background: var(--field);
+  border-color: var(--line);
 }
 </style>

@@ -184,7 +184,7 @@ function openInvoice(id: string) {
   width: 26px;
   height: 26px;
   border-radius: 8px;
-  background: rgba(255, 184, 107, 0.14);
+  background: var(--warn-soft);
   color: var(--warn);
   display: grid;
   place-items: center;
@@ -205,9 +205,9 @@ function openInvoice(id: string) {
   gap: 4px;
   font-size: 10px;
   font-weight: 700;
-  color: #c9b4ff;
-  background: rgba(183, 140, 255, 0.13);
-  border: 1px solid rgba(183, 140, 255, 0.25);
+  color: var(--link);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
   padding: 5px 9px;
   border-radius: 8px;
   flex: none;

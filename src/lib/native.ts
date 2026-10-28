@@ -26,6 +26,16 @@ export async function initNative(): Promise<void> {
   }
 }
 
+/** Switch the status/navigation bar icon colour to match the UI. */
+export async function setSystemBarStyle(darkUi: boolean): Promise<void> {
+  if (!isNative) return
+  try {
+    await SystemBars.setStyle({ style: darkUi ? SystemBarsStyle.Dark : SystemBarsStyle.Light })
+  } catch {
+    /* plugin missing on this platform build */
+  }
+}
+
 export async function hideSplash(): Promise<void> {
   if (!isNative) return
   try {

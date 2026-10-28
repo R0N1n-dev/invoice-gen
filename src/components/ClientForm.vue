@@ -2,12 +2,26 @@
 import { ref, watch } from 'vue'
 import type { Client } from '@/types'
 import { CURRENCIES } from '@/lib/money'
+import AppSelect from './AppSelect.vue'
 
 const props = defineProps<{ client?: Client | null }>()
 const emit = defineEmits<{ save: [Partial<Client>]; cancel: [] }>()
 
 const form = ref<Partial<Client>>({ paymentTerms: 14, country: '', currency: '' })
 const error = ref('')
+
+const currencyOptions = [
+  { value: '', label: 'Business default' },
+  ...CURRENCIES.map((c) => ({ value: c, label: c })),
+]
+const termsOptions = [
+  { value: 0, label: 'Due on receipt' },
+  { value: 7, label: 'Net 7' },
+  { value: 14, label: 'Net 14' },
+  { value: 30, label: 'Net 30' },
+  { value: 45, label: 'Net 45' },
+  { value: 60, label: 'Net 60' },
+]
 
 watch(
   () => props.client,
@@ -74,21 +88,21 @@ function submit() {
     <div class="grid-3">
       <label class="field">
         <span class="label">Currency</span>
-        <select v-model="form.currency">
-          <option value="">Default</option>
-          <option v-for="c in CURRENCIES" :key="c" :value="c">{{ c }}</option>
-        </select>
+        <AppSelect
+          :model-value="form.currency ?? ''"
+          label="Currency"
+          :options="currencyOptions"
+          @update:model-value="(v) => (form.currency = String(v))"
+        />
       </label>
       <label class="field">
         <span class="label">Payment terms</span>
-        <select v-model.number="form.paymentTerms">
-          <option :value="0">Due on receipt</option>
-          <option :value="7">Net 7</option>
-          <option :value="14">Net 14</option>
-          <option :value="30">Net 30</option>
-          <option :value="45">Net 45</option>
-          <option :value="60">Net 60</option>
-        </select>
+        <AppSelect
+          :model-value="form.paymentTerms ?? 14"
+          label="Payment terms"
+          :options="termsOptions"
+          @update:model-value="(v) => (form.paymentTerms = Number(v))"
+        />
       </label>
       <label class="field">
         <span class="label">Notes</span>

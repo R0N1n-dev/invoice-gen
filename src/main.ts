@@ -7,6 +7,7 @@ import { useSettingsStore } from './stores/settings'
 import { useDataStore } from './stores/data'
 import { db, requestPersistentStorage } from './db/db'
 import { initNative } from './lib/native'
+import { applyAppearance } from './lib/themes'
 import { seedDemoData } from './db/seed'
 
 async function bootstrap() {
@@ -20,6 +21,7 @@ async function bootstrap() {
 
   const settings = useSettingsStore(pinia)
   await settings.load()
+  applyAppearance(settings.settings)
 
   if ((await db.invoices.count()) === 0 && !settings.settings.onboarded) {
     await seedDemoData()

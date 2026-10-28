@@ -17,6 +17,7 @@ import {
 import Money from '@/components/Money.vue'
 import StatusPill from '@/components/StatusPill.vue'
 import AppSheet from '@/components/AppSheet.vue'
+import AppSelect from '@/components/AppSelect.vue'
 import InvoicePreview from '@/components/InvoicePreview.vue'
 import { useDataStore } from '@/stores/data'
 import { useSettingsStore } from '@/stores/settings'
@@ -38,6 +39,11 @@ const totals = computed(() => (invoice.value ? computeTotals(invoice.value) : nu
 const status = computed(() => (invoice.value ? displayStatus(invoice.value) : 'draft'))
 const symbol = computed(() => currencySymbol(invoice.value?.currency ?? 'USD', settings.locale))
 const dt = (iso: string) => formatDate(iso, settings.locale, settings.dateFormat)
+
+const methodOptions = ['Bank transfer', 'Cash', 'Credit card', 'PayPal', 'Stripe', 'Other'].map((m) => ({
+  value: m,
+  label: m,
+}))
 
 const busy = ref(false)
 const showPay = ref(false)
@@ -342,14 +348,7 @@ async function removePayment(paymentId: string) {
       </div>
       <label class="field">
         <span class="label">Method</span>
-        <select v-model="payMethod">
-          <option>Bank transfer</option>
-          <option>Cash</option>
-          <option>Credit card</option>
-          <option>PayPal</option>
-          <option>Stripe</option>
-          <option>Other</option>
-        </select>
+        <AppSelect v-model="payMethod" label="Payment method" :options="methodOptions" />
       </label>
       <label class="field">
         <span class="label">Note</span>

@@ -15,6 +15,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { useUiStore } from '@/stores/ui'
 import { hideSplash, isNative, exitApp, onBackButton, onAppStateChange, writeBackupFile, initNative } from '@/lib/native'
 import { debounce } from '@/lib/utils'
+import { applyAppearance } from '@/lib/themes'
 
 const route = useRoute()
 const router = useRouter()
@@ -92,7 +93,20 @@ if (import.meta.env.DEV) {
   ;(window as unknown as { __billfoldBack?: () => Promise<void> }).__billfoldBack = handleBack
 }
 
+watch(
+  () => [settings.settings.themeId, settings.settings.colorMode, settings.settings.fontId],
+  () => applyAppearance(settings.settings),
+  { immediate: true },
+)
+
+let schemeQuery: MediaQueryList | undefined
+function onSchemeChange() {
+  if (settings.settings.colorMode === 'system') applyAppearance(settings.settings)
+}
+
 onMounted(async () => {
+  schemeQuery = window.matchMedia('(prefers-color-scheme: light)')
+  schemeQuery.addEventListener('change', onSchemeChange)
   removeBack = onBackButton(() => void handleBack())
   removeState = onAppStateChange((isActive) => {
     if (!isActive) void autoBackup()
@@ -104,6 +118,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   removeBack?.()
   removeState?.()
+  schemeQuery?.removeEventListener('change', onSchemeChange)
 })
 
 watch(() => [data.revision, settings.settings.autoBackup], autoBackup)

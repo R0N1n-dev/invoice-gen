@@ -127,7 +127,7 @@ async function remove(client: Client) {
           <span class="eyebrow">Invoice history</span>
           <button class="tiny link" type="button" @click="router.push('/invoices')">All invoices</button>
         </div>
-        <div v-for="inv in data.invoices.filter((i) => i.clientId === editing?.id).slice(0, 5)" :key="inv.id" class="between" style="padding: 6px 0; border-bottom: 1px solid #18202d">
+        <div v-for="inv in data.invoices.filter((i) => i.clientId === editing?.id).slice(0, 5)" :key="inv.id" class="between" style="padding: 6px 0; border-bottom: 1px solid var(--line)">
           <button class="tiny link mono" type="button" @click="router.push(`/invoices/${inv.id}`)">{{ inv.number }}</button>
           <span class="tiny dim">{{ formatDate(inv.issueDate, settings.locale, settings.dateFormat) }}</span>
           <span class="tiny"><Money :amount="inv.total" :currency="inv.currency" /></span>

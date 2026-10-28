@@ -122,6 +122,9 @@ export interface Settings {
   defaultTemplate: PdfTemplate
   autoBackup: boolean
   onboarded: boolean
+  themeId: string
+  colorMode: 'light' | 'dark' | 'system'
+  fontId: string
 }
 
 export interface TotalsLine {

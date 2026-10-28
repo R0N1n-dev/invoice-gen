@@ -2,6 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { BookPlus, Package, Plus, Search, Trash2 } from '@lucide/vue'
 import AppSheet from '@/components/AppSheet.vue'
+import AppSelect from '@/components/AppSelect.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Money from '@/components/Money.vue'
 import { useDataStore } from '@/stores/data'
@@ -27,6 +28,11 @@ const form = reactive({
   taxRate: settings.settings.defaultTaxRate,
   sku: '',
 })
+
+const unitOptions = ['unit', 'hour', 'day', 'project', 'session', 'month', 'word', 'page'].map((u) => ({
+  value: u,
+  label: u,
+}))
 
 const symbol = computed(() => currencySymbol(settings.currency, settings.locale))
 
@@ -169,16 +175,7 @@ async function remove() {
         </label>
         <label class="field">
           <span class="label">Unit</span>
-          <select v-model="form.unitLabel">
-            <option value="unit">unit</option>
-            <option value="hour">hour</option>
-            <option value="day">day</option>
-            <option value="project">project</option>
-            <option value="session">session</option>
-            <option value="month">month</option>
-            <option value="word">word</option>
-            <option value="page">page</option>
-          </select>
+          <AppSelect v-model="form.unitLabel" label="Unit" :options="unitOptions" />
         </label>
       </div>
       <div class="grid-2">
