@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
-import {
-  ChartNoAxesCombined,
-  FileText,
-  Package,
-  Settings as SettingsIcon,
-  Users,
-} from '@lucide/vue'
+import { Clients, Home, Invoices, Items, Settings } from '@/components/icons'
 import ToastHost from '@/components/ToastHost.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { useDataStore } from '@/stores/data'
@@ -24,11 +18,11 @@ const settings = useSettingsStore()
 const ui = useUiStore()
 
 const nav = [
-  { to: '/', label: 'Home', icon: ChartNoAxesCombined },
-  { to: '/invoices', label: 'Invoices', icon: FileText, badge: () => String(data.openInvoices.length) },
-  { to: '/clients', label: 'Clients', icon: Users },
-  { to: '/catalog', label: 'Items', icon: Package },
-  { to: '/settings', label: 'Settings', icon: SettingsIcon },
+  { to: '/', label: 'Home', icon: Home },
+  { to: '/invoices', label: 'Invoices', icon: Invoices, badge: () => String(data.openInvoices.length) },
+  { to: '/clients', label: 'Clients', icon: Clients },
+  { to: '/catalog', label: 'Items', icon: Items },
+  { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
 const hideNav = computed(() => Boolean(route.meta.hideNav))
@@ -134,7 +128,7 @@ onMounted(() => void initNative())
         <div class="brand-mark">B</div>
         <div>
           <div class="brand-name">Billfold</div>
-          <div class="brand-sub">{{ settings.business.name || 'Invoicing, offline' }}</div>
+          <div class="brand-sub">{{ settings.business.name || 'Invoice generator' }}</div>
         </div>
       </div>
       <RouterLink v-for="item in nav" :key="item.to" :to="item.to" class="nav-item" :class="{ on: isActive(item.to) }">

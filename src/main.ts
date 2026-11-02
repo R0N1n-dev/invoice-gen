@@ -5,10 +5,9 @@ import router from './router'
 import './styles/app.css'
 import { useSettingsStore } from './stores/settings'
 import { useDataStore } from './stores/data'
-import { db, requestPersistentStorage } from './db/db'
+import { requestPersistentStorage } from './db/db'
 import { initNative } from './lib/native'
 import { applyAppearance } from './lib/themes'
-import { seedDemoData } from './db/seed'
 
 async function bootstrap() {
   const app = createApp(App)
@@ -23,10 +22,7 @@ async function bootstrap() {
   await settings.load()
   applyAppearance(settings.settings)
 
-  if ((await db.invoices.count()) === 0 && !settings.settings.onboarded) {
-    await seedDemoData()
-    await settings.load()
-  }
+  // The app starts empty: sample data is opt-in from Settings.
 
   await useDataStore(pinia).load()
   await router.isReady()

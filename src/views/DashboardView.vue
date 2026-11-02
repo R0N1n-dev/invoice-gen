@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { ArrowRight, Clock, Plus, UserPlus } from '@lucide/vue'
+import { ArrowRight, Building2, Clock, Plus, UserPlus } from '@/components/icons'
 import Money from '@/components/Money.vue'
 import Sparkline from '@/components/Sparkline.vue'
 import StatusPill from '@/components/StatusPill.vue'
 import { useDataStore } from '@/stores/data'
 import { useSettingsStore } from '@/stores/settings'
+import { useUiStore } from '@/stores/ui'
 import { displayStatus } from '@/lib/calc'
 import { relativeDueLabel } from '@/lib/dates'
 import { initials } from '@/lib/utils'
@@ -14,6 +15,7 @@ import { initials } from '@/lib/utils'
 const router = useRouter()
 const data = useDataStore()
 const settings = useSettingsStore()
+const ui = useUiStore()
 
 const hour = new Date().getHours()
 const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
@@ -42,6 +44,21 @@ const dueThisWeekTotal = computed(() =>
   }, 0),
 )
 
+const isEmpty = computed(() => data.invoices.length === 0)
+const needsBusiness = computed(() => !settings.business.name.trim())
+
+async function loadSample() {
+  const ok = await ui.confirm({
+    title: 'Load sample data?',
+    message:
+      'Adds a demo studio with 10 invoices, 5 clients and 6 catalog items so you can try every screen. You can remove it later in Settings → Erase all data.',
+    confirmLabel: 'Load sample',
+  })
+  if (!ok) return
+  await settings.loadDemo()
+  ui.toast('Sample data loaded — explore freely')
+}
+
 function openInvoice(id: string) {
   router.push(`/invoices/${id}`)
 }
@@ -58,6 +75,15 @@ function openInvoice(id: string) {
         {{ initials(settings.business.name || 'Billfold') }}
       </RouterLink>
     </div>
+
+    <button v-if="needsBusiness" class="setup-card" type="button" @click="router.push('/settings')">
+      <span class="setup-ic"><Building2 :size="16" /></span>
+      <span class="grow" style="text-align: left">
+        <span class="setup-t">Add your business details</span>
+        <span class="setup-s">Name, address, VAT and bank details appear on every invoice PDF.</span>
+      </span>
+      <ArrowRight :size="15" class="dim" />
+    </button>
 
     <div class="dash-grid">
       <div>
@@ -141,8 +167,14 @@ function openInvoice(id: string) {
             </span>
           </button>
           <div v-if="!data.recent.length" class="empty" style="border: 0; padding: 26px 0">
-            <p>No invoices yet — your first one takes about a minute.</p>
-            <RouterLink to="/invoices/new" class="btn primary sm">Create invoice</RouterLink>
+            <p>
+              No invoices yet — your first one takes about a minute.
+              <template v-if="isEmpty"> Or load sample data to see how Billfold works.</template>
+            </p>
+            <div class="row" style="justify-content: center; gap: 8px">
+              <RouterLink to="/invoices/new" class="btn primary sm">Create invoice</RouterLink>
+              <button v-if="isEmpty" class="btn ghost sm" type="button" @click="loadSample">Load sample data</button>
+            </div>
           </div>
         </div>
 
@@ -161,6 +193,41 @@ function openInvoice(id: string) {
 </template>
 
 <style scoped>
+.setup-card {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px dashed var(--accent-line);
+  background: var(--accent-soft);
+  text-align: left;
+}
+.setup-ic {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  color: var(--link);
+  flex: none;
+}
+.setup-t {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+}
+.setup-s {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+
 .dash-grid {
   display: grid;
   gap: 18px;

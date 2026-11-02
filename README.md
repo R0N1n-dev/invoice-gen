@@ -31,6 +31,13 @@ no haptics.
 - Every theme is generated from its palette at runtime (surfaces, borders, states, hero
   gradient) and audited for WCAG contrast in both modes
 
+**Getting started**
+- Ships empty: no fake clients or invoices on first launch
+- Dashboard prompts you to add business details and create the first invoice
+- Optional **sample data** in Settings (next to *Erase all data*, marked as Sample) loads a
+  demo studio — 10 invoices, 5 clients, 6 catalog items — so you can learn the app, and can
+  be wiped again at any time
+
 **Data**
 - Clients with contact, address, VAT ID, currency and payment terms
 - Reusable catalog of products/services with SKU, unit, default price and tax
@@ -44,7 +51,8 @@ no haptics.
 - Hardware back button: sheet/dialog -> keyboard -> editor (discard guard) -> parent screen ->
   "Exit Billfold?" confirmation
 - Filesystem + share sheet + keyboard-aware insets; no vibration/haptics anywhere
-- Launcher icon, adaptive icon and splash generated from the in-app brand mark
+- Launcher icon, adaptive icon and a branded splash (mark + “Billfold” + “Invoice generator”)
+  generated from the in-app brand mark
 
 ## Stack
 
@@ -57,7 +65,7 @@ no haptics.
 | PDF | pdf-lib (pure JS, no native step) |
 | Native | Capacitor 8: app, filesystem, share, splash-screen, keyboard + built-in SystemBars |
 | Theming | runtime CSS custom properties generated from palette + mode |
-| Icons | `@lucide/vue` |
+| Icons | Hugeicons (`@hugeicons/vue` + free set) behind `src/components/icons.ts` |
 
 ## Why IndexedDB (Dexie) instead of SQLite
 
@@ -189,14 +197,16 @@ cd tools/shots
 node app-test.mjs     # screenshots + PDF download + persistence + issued flow
 node flows-test.mjs   # 3 templates, payment, client CRUD, draft save, settings, filters
 node back-test.mjs    # Android back order: exit prompt, parent route, sheet, blur, discard guard
+node empty-test.mjs   # first run is empty -> load sample data -> erase -> empty again
 node select-test.mjs  # every custom picker: settings, editor, catalog, clients + persistence
 node theme-test.mjs   # screenshots of all 10 themes in both modes and all 5 fonts
 node theme-audit.mjs  # WCAG contrast audit for each theme/mode (fails under 3:1)
 node pdf-check.mjs /tmp/billfold-test.pdf   # page text + PNG render of the PDF
 ```
 
-Latest results: 11 invoices persisted across reload, payments recalculate balances,
-all three PDF templates render with correct text, zero console errors.
+Latest results: first run starts at zero invoices; sample data loads 10 invoices and erasing
+returns to 0; 11 invoices persisted across a reload in the editor flow; payments recalculate
+balances; all three PDF templates render with correct text; zero console errors.
 
 ## No haptics
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Check, ChevronDown } from '@lucide/vue'
+import { Check, ChevronDown } from '@/components/icons'
 import AppSheet from './AppSheet.vue'
 
 export interface SelectOption {

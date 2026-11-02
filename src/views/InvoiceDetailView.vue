@@ -13,7 +13,7 @@ import {
   Share2,
   Trash2,
   Wallet,
-} from '@lucide/vue'
+} from '@/components/icons'
 import Money from '@/components/Money.vue'
 import StatusPill from '@/components/StatusPill.vue'
 import AppSheet from '@/components/AppSheet.vue'

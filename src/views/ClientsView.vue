@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Plus, Search, Trash2, Users } from '@lucide/vue'
+import { Plus, Search, Trash2, Users } from '@/components/icons'
 import AppSheet from '@/components/AppSheet.vue'
 import ClientForm from '@/components/ClientForm.vue'
 import EmptyState from '@/components/EmptyState.vue'

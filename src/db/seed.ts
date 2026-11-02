@@ -5,6 +5,28 @@ import { uid } from '@/lib/utils'
 import { db } from './db'
 
 export const DEFAULT_BUSINESS: Business = {
+  name: '',
+  legalName: '',
+  email: '',
+  phone: '',
+  website: '',
+  address1: '',
+  address2: '',
+  city: '',
+  postal: '',
+  country: '',
+  taxId: '',
+  bankName: '',
+  accountName: '',
+  iban: '',
+  bic: '',
+  logo: '',
+  accent: '#7C93FF',
+  footerNote: 'Thank you for your business.',
+}
+
+/** Sample studio used only when the user explicitly loads demo data. */
+export const DEMO_BUSINESS: Business = {
   name: 'Northwind Studio',
   legalName: '',
   email: 'hello@northwind.studio',
@@ -305,7 +327,7 @@ export async function seedDemoData(): Promise<{ clients: Client[]; items: Catalo
     await db.clients.bulkPut(clients)
     await db.items.bulkPut(items)
     await db.invoices.bulkPut(invoices)
-    await db.kv.put({ key: 'business', value: DEFAULT_BUSINESS })
+    await db.kv.put({ key: 'business', value: DEMO_BUSINESS })
     await db.kv.put({ key: 'settings', value: settings })
   })
 

@@ -91,7 +91,7 @@ export const CURRENCIES = [
   'USD', 'EUR', 'GBP', 'INR', 'CAD', 'AUD', 'JPY', 'CHF', 'SEK', 'NOK',
   'DKK', 'PLN', 'CZK', 'BRL', 'MXN', 'ZAR', 'NGN', 'AED', 'SAR', 'SGD',
   'HKD', 'NZD', 'TRY', 'KRW', 'CNY', 'THB', 'IDR', 'MYR', 'PHP', 'VND',
-  'ILS', 'EGP', 'KES', 'GHS', 'PKR', 'BDT', 'LKR', 'UAH', 'RON', 'HUF',
+  'ILS', 'EGP', 'KES', 'UGX', 'TZS', 'RWF', 'GHS', 'PKR', 'BDT', 'LKR', 'UAH', 'RON', 'HUF',
 ]
 
 export const LOCALES = [

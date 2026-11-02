@@ -93,3 +93,14 @@ mockups/                  static design directions + screenshots
   Grotesk) with a picker; all files are vendored woff2 for offline use.
 - Status bar icon style follows the active mode on Android.
 - Automated contrast audit across 10 themes x 2 modes: worst small-text ratio 4.21:1.
+
+## 8. Icons, UGX, empty start, splash
+
+- Swapped Lucide for **Hugeicons** (free set) via `src/components/icons.ts`, a 40-icon wrapper
+  that keeps the `<Icon :size="16" />` call shape used across views.
+- Added **UGX** (Ugandan Shilling) to the currency list; it is zero-decimal so amounts render
+  without cents.
+- The app now starts with **no data**; `DEFAULT_BUSINESS` is blank and the demo studio moved to
+  `DEMO_BUSINESS`. Settings -> Your data has *Load sample data* (marked “Sample”) next to
+  *Erase all data*, and the dashboard/empty states point at both.
+- Android splash regenerated per density: brand tile + “Billfold” + “Invoice generator”.
