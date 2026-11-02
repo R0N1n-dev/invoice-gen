@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CircleCheck, Info, TriangleAlert } from '@lucide/vue'
+import { CircleCheck, Info, TriangleAlert } from '@/components/icons'
 import { useUiStore } from '@/stores/ui'
 
 const ui = useUiStore()

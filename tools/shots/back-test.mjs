@@ -1,4 +1,5 @@
 import { chromium } from 'playwright'
+import { ensureSampleData } from './lib.mjs'
 
 const BASE = 'http://127.0.0.1:5173'
 const browser = await chromium.launch()
@@ -18,6 +19,9 @@ const state = async () => {
 
 await page.goto(BASE + '/#/', { waitUntil: 'domcontentloaded' })
 await page.waitForTimeout(2200)
+await ensureSampleData(page, BASE)
+await page.goto(BASE + '/#/', { waitUntil: 'domcontentloaded' })
+await page.waitForTimeout(1200)
 
 // 1. root -> exit confirmation, cancel with back
 await back()

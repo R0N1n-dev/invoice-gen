@@ -1,5 +1,6 @@
 import { chromium } from 'playwright'
 import fs from 'node:fs'
+import { ensureSampleData } from './lib.mjs'
 
 const BASE = 'http://127.0.0.1:4173'
 const out = '/workspace/mockups/shots/themes'
@@ -25,6 +26,7 @@ const go = async (hash) => {
   await page.waitForTimeout(900)
 }
 
+await ensureSampleData(page)
 await go('/')
 await shot('01-dark-slate')
 

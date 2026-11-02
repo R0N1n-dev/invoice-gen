@@ -13,7 +13,7 @@ import {
   ShieldCheck,
   Trash2,
   Upload,
-} from '@lucide/vue'
+} from '@/components/icons'
 import AppSheet from '@/components/AppSheet.vue'
 import AppSelect from '@/components/AppSelect.vue'
 import { useSettingsStore } from '@/stores/settings'
@@ -193,9 +193,10 @@ async function onImport(event: Event) {
 
 async function loadDemo() {
   const ok = await ui.confirm({
-    title: 'Load demo data?',
-    message: 'This replaces your current clients and invoices with a sample studio dataset.',
-    confirmLabel: 'Load demo',
+    title: 'Load sample data?',
+    message:
+      'Adds a demo studio with 10 invoices, 5 clients and 6 catalog items so you can explore Billfold. Anything already on this device is replaced — you can remove the sample later with “Erase all data”.',
+    confirmLabel: 'Load sample',
     danger: true,
   })
   if (!ok) return
@@ -203,7 +204,7 @@ async function loadDemo() {
   Object.assign(biz, JSON.parse(JSON.stringify(settings.business)))
   Object.assign(prefs, JSON.parse(JSON.stringify(settings.settings)))
   dirty.value = false
-  ui.toast('Demo data loaded')
+  ui.toast('Sample data loaded — explore freely')
 }
 
 async function eraseAll() {
@@ -525,15 +526,18 @@ async function eraseAll() {
       <button class="settings-row" type="button" @click="loadDemo">
         <span class="si"><RotateCcw :size="15" /></span>
         <span class="grow">
-          <span class="st">Load demo data</span>
-          <span class="ss">Sample studio invoices to explore the app</span>
+          <span class="st">Load sample data <span class="pill info" style="margin-left: 6px">Sample</span></span>
+          <span class="ss">
+            Fills the app with a demo studio (10 invoices, 5 clients, 6 catalog items) so you can see how
+            everything works. Replaces what is on this device — clear it any time with “Erase all data”.
+          </span>
         </span>
       </button>
       <button class="settings-row" type="button" @click="eraseAll">
         <span class="si" style="color: var(--danger)"><Trash2 :size="15" /></span>
         <span class="grow">
           <span class="st" style="color: var(--danger)">Erase all data</span>
-          <span class="ss">Deletes invoices, clients, catalog and settings</span>
+          <span class="ss">Deletes every invoice, client, item and setting — sample data included</span>
         </span>
       </button>
     </div>

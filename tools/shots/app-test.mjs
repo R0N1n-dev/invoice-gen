@@ -1,6 +1,7 @@
 import { chromium } from 'playwright'
 import fs from 'node:fs'
 import path from 'node:path'
+import { ensureSampleData } from './lib.mjs'
 
 const BASE = 'http://127.0.0.1:4173'
 const out = '/workspace/mockups/shots/app'
@@ -25,6 +26,9 @@ const shot = async (name) => {
   console.log('shot', name)
 }
 
+await page.goto(BASE, { waitUntil: 'networkidle' })
+await page.waitForTimeout(900)
+await ensureSampleData(page)
 await page.goto(BASE, { waitUntil: 'networkidle' })
 await page.waitForTimeout(900)
 await shot('01-dashboard')

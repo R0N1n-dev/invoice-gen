@@ -1,5 +1,6 @@
 import { chromium } from 'playwright'
 import fs from 'node:fs'
+import { ensureSampleData } from './lib.mjs'
 
 const BASE = 'http://127.0.0.1:4173'
 const browser = await chromium.launch()
@@ -13,6 +14,7 @@ page.on('console', (m) => {
 
 await page.goto(BASE, { waitUntil: 'networkidle' })
 await page.waitForTimeout(1000)
+await ensureSampleData(page)
 
 // --- template PDFs on an invoice with several items ---
 await page.goto(BASE + '/#/invoices', { waitUntil: 'networkidle' })

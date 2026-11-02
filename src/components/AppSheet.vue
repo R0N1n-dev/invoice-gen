@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, watch } from 'vue'
-import { X } from '@lucide/vue'
+import { X } from '@/components/icons'
 import { useUiStore } from '@/stores/ui'
 
 const props = withDefaults(

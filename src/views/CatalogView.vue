@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
-import { BookPlus, Package, Plus, Search, Trash2 } from '@lucide/vue'
+import { BookPlus, Package, Plus, Search, Trash2 } from '@/components/icons'
 import AppSheet from '@/components/AppSheet.vue'
 import AppSelect from '@/components/AppSelect.vue'
 import EmptyState from '@/components/EmptyState.vue'

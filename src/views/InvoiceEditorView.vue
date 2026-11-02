@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
-import { ArrowLeft, BookPlus, Plus, Trash2, Users } from '@lucide/vue'
+import { ArrowLeft, BookPlus, Plus, Trash2, Users } from '@/components/icons'
 import Money from '@/components/Money.vue'
 import AppSheet from '@/components/AppSheet.vue'
 import AppSelect from '@/components/AppSelect.vue'
