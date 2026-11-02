@@ -104,3 +104,7 @@ mockups/                  static design directions + screenshots
   `DEMO_BUSINESS`. Settings -> Your data has *Load sample data* (marked “Sample”) next to
   *Erase all data*, and the dashboard/empty states point at both.
 - Android splash regenerated per density: brand tile + “Billfold” + “Invoice generator”.
+- Added a matching **web/PWA boot splash** in `index.html` (mark + “Billfold” + “Invoice
+  Generator”), dismissed by `src/main.ts` once the first screen is painted, so browsers no
+  longer flash a blank dark page while the app boots. Bootstrap also falls back to defaults if
+  storage throws, so the splash can never get stuck on screen.

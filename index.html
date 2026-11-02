@@ -13,8 +13,76 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <style>
+      /* Boot splash — mirrors the native Android splash (mark + wordmark + tagline)
+         so the web/PWA build never shows a blank screen while the app boots. */
+      html,
+      body {
+        margin: 0;
+        background: #080b10;
+        color: #eef1f8;
+      }
+      #boot-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #080b10;
+        font-family: 'Jakarta', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        opacity: 1;
+        transition: opacity 280ms ease;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+      }
+      #boot-splash.bs-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .bs-mark {
+        display: grid;
+        place-items: center;
+        width: 92px;
+        height: 92px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, #7c93ff, #b78cff);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        color: #080b10;
+        font-size: 58px;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.02em;
+      }
+      .bs-name {
+        margin-top: 24px;
+        font-size: 34px;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        color: #f4f6ff;
+      }
+      .bs-tag {
+        margin-top: 9px;
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: rgba(214, 221, 240, 0.62);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot-splash {
+          transition: none;
+        }
+      }
+    </style>
   </head>
   <body>
+    <div id="boot-splash" role="status" aria-label="Billfold — invoice generator">
+      <div class="bs-mark" aria-hidden="true">B</div>
+      <div class="bs-name">Billfold</div>
+      <div class="bs-tag">Invoice Generator</div>
+    </div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

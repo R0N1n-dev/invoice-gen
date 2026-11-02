@@ -37,6 +37,8 @@ no haptics.
 - Optional **sample data** in Settings (next to *Erase all data*, marked as Sample) loads a
   demo studio — 10 invoices, 5 clients, 6 catalog items — so you can learn the app, and can
   be wiped again at any time
+- Branded splash on every platform: the Android launch screen and the web/PWA boot splash both
+  show the brand mark, “Billfold” and an **Invoice Generator** tagline, then fade into the app
 
 **Data**
 - Clients with contact, address, VAT ID, currency and payment terms
