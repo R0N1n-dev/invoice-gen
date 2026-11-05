@@ -340,7 +340,7 @@ onBeforeUnmount(() => observer?.disconnect())
   margin-top: 5px;
   color: #12141a;
 }
-.mini .hdr.mini {
+.minimal .hdr.mini {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -348,26 +348,26 @@ onBeforeUnmount(() => observer?.disconnect())
   border-top: 5px solid #12141a;
   flex: none;
 }
-.mini .topline {
+.minimal .topline {
   display: none;
 }
-.mini .dlab {
+.minimal .dlab {
   color: #8b8f98;
   opacity: 1;
   text-align: left;
 }
-.mini .dnum {
+.minimal .dnum {
   font-size: 29px;
   letter-spacing: -0.045em;
   margin-top: 5px;
 }
-.mini .doc {
+.minimal .doc {
   text-align: right;
 }
-.mini .doc .bname {
+.minimal .doc .bname {
   font-size: 10px;
 }
-.mini .doc .ddate {
+.minimal .doc .ddate {
   color: #8b8f98;
   opacity: 1;
   font-size: 9px;
@@ -493,7 +493,7 @@ onBeforeUnmount(() => observer?.disconnect())
   padding: 8px 0 0;
   border-radius: 0;
 }
-.mini .tbox {
+.minimal .tbox {
   background: #12141a;
 }
 .notes {

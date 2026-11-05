@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
-import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, BookPlus, Plus, Trash2, Users } from '@/components/icons'
 import Money from '@/components/Money.vue'
 import AppSheet from '@/components/AppSheet.vue'
@@ -11,12 +11,21 @@ import { useSettingsStore } from '@/stores/settings'
 import { useUiStore } from '@/stores/ui'
 import { computeTotals } from '@/lib/calc'
 import { addDays, todayISO } from '@/lib/dates'
-import { CURRENCIES, amountInputValue, currencySymbol, parseAmount } from '@/lib/money'
+import {
+  CURRENCIES,
+  amountInputValue,
+  currencyDigits,
+  currencyStep,
+  currencySymbol,
+  parseAmount,
+  rebaseMinor,
+} from '@/lib/money'
 import { newInvoiceDefaults } from '@/db/seed'
 import { uid } from '@/lib/utils'
 import type { Client, Invoice, LineItem, PdfTemplate } from '@/types'
 
 const props = defineProps<{ id?: string }>()
+const route = useRoute()
 const router = useRouter()
 const data = useDataStore()
 const settings = useSettingsStore()
@@ -25,7 +34,10 @@ const ui = useUiStore()
 const existing = props.id ? data.getInvoice(props.id) : undefined
 if (props.id && !existing) router.replace('/invoices')
 
-const blank = newInvoiceDefaults(undefined, settings.settings)
+// "New invoice for this client" (Clients screen) pre-fills the client, currency and terms.
+const preselected =
+  !props.id && typeof route.query.client === 'string' ? data.getClient(route.query.client) : undefined
+const blank = newInvoiceDefaults(preselected, settings.settings)
 const draft = reactive<Invoice>(
   existing ? (JSON.parse(JSON.stringify(existing)) as Invoice) : blank,
 )
@@ -50,6 +62,8 @@ const currency = computed(() => draft.currency || settings.settings.currency)
 const totals = computed(() => computeTotals(draft))
 const selectedClient = computed(() => data.getClient(draft.clientId))
 const symbol = computed(() => currencySymbol(currency.value, settings.locale))
+const step = computed(() => currencyStep(currency.value))
+const decimals = computed(() => currencyDigits(currency.value) > 0)
 const nextNumberPreview = computed(() =>
   `${settings.settings.invoicePrefix}-${new Date().getFullYear()}-${String(
     settings.settings.nextNumber,
@@ -71,34 +85,104 @@ function markDirty() {
   dirty.value = true
 }
 
-function priceValue(line: LineItem): number {
-  return Number(amountInputValue(line.unitPrice, currency.value))
-}
+/**
+ * Raw text for numeric fields while they have focus. A controlled value would
+ * rewrite "1234." or "1234.7" the moment it is parsed (UGX rounds to whole
+ * units), which used to mangle what the user was typing.
+ */
+const raw = reactive<Record<string, string>>({})
 
-function onPrice(line: LineItem, event: Event) {
-  line.unitPrice = parseAmount((event.target as HTMLInputElement).value, currency.value)
+function moneyText(key: string, minor: number): string {
+  return raw[key] ?? amountInputValue(minor, currency.value)
+}
+function numberText(key: string, value: number): string {
+  return raw[key] ?? String(value)
+}
+function onMoney(key: string, event: Event, commit: (minor: number) => void): void {
+  const text = (event.target as HTMLInputElement).value
+  raw[key] = text
+  commit(parseAmount(text, currency.value))
   markDirty()
 }
+function onNumber(key: string, event: Event, commit: (value: number) => void): void {
+  const text = (event.target as HTMLInputElement).value
+  raw[key] = text
+  const n = Number.parseFloat(text)
+  commit(Number.isFinite(n) ? n : 0)
+  markDirty()
+}
+function onBlur(key: string): void {
+  delete raw[key]
+}
+function clearRaw(): void {
+  for (const key of Object.keys(raw)) delete raw[key]
+}
 
-const invoiceDiscountValue = computed({
-  get: () => {
-    if (draft.discountType === 'percent') return draft.discountValue
-    return Number(amountInputValue(draft.discountValue, currency.value))
-  },
-  set: (value: number) => {
-    draft.discountValue =
-      draft.discountType === 'percent' ? Number(value) : parseAmount(String(value), currency.value)
+/**
+ * Changing the invoice currency must not silently re-scale the amounts already
+ * typed: 1500.00 in a 2-decimal currency stays 1500 in a zero-decimal one.
+ */
+watch(
+  () => draft.currency,
+  (next, previous) => {
+    if (!previous || previous === next) return
+    const rebase = (value: number) => rebaseMinor(value, previous, next)
+    draft.items.forEach((line) => {
+      line.unitPrice = rebase(line.unitPrice)
+      if (line.discountType === 'fixed') line.discountValue = rebase(line.discountValue)
+    })
+    if (draft.discountType === 'fixed') draft.discountValue = rebase(draft.discountValue)
+    draft.shipping = rebase(draft.shipping)
+    draft.payments.forEach((payment) => {
+      payment.amount = rebase(payment.amount)
+    })
+    draft.total = rebase(draft.total)
+    clearRaw()
     markDirty()
   },
-})
+)
 
-const shippingValue = computed({
-  get: () => Number(amountInputValue(draft.shipping, currency.value)),
-  set: (value: number) => {
-    draft.shipping = parseAmount(String(value), currency.value)
-    markDirty()
-  },
-})
+function onPrice(line: LineItem, event: Event) {
+  onMoney(`price:${line.id}`, event, (minor) => {
+    line.unitPrice = minor
+  })
+}
+
+function onShipping(event: Event) {
+  onMoney('shipping', event, (minor) => {
+    draft.shipping = minor
+  })
+}
+
+function onInvoiceDiscount(event: Event) {
+  if (draft.discountType === 'percent') {
+    onNumber('discount', event, (value) => {
+      draft.discountValue = value
+    })
+    return
+  }
+  onMoney('discount', event, (minor) => {
+    draft.discountValue = minor
+  })
+}
+
+function onQty(line: LineItem, event: Event) {
+  onNumber(`qty:${line.id}`, event, (value) => {
+    line.qty = Math.max(0, value)
+  })
+}
+
+function onTaxRate(line: LineItem, event: Event) {
+  onNumber(`tax:${line.id}`, event, (value) => {
+    line.taxRate = Math.max(0, value)
+  })
+}
+
+function onLineDiscount(line: LineItem, event: Event) {
+  onNumber(`ldisc:${line.id}`, event, (value) => {
+    line.discountValue = Math.min(100, Math.max(0, value))
+  })
+}
 
 function addLine() {
   draft.items.push({
@@ -152,7 +236,8 @@ function chooseClient(client: Client) {
       .join('\n'),
     taxId: client.taxId,
   }
-  if (client.currency) draft.currency = client.currency
+  // The invoice currency stays exactly as picked (app default or the currency
+  // picker). Picking a client must never flip it back to the client's currency.
   if (typeof client.paymentTerms === 'number') {
     draft.dueDate = addDays(draft.issueDate, client.paymentTerms)
   }
@@ -344,19 +429,52 @@ onBeforeRouteLeave(async () => {
       <div class="line-grid">
         <label>
           <span>Qty</span>
-          <input v-model.number="line.qty" type="number" min="0" step="0.01" inputmode="decimal" @input="markDirty" />
+          <input
+            type="number"
+            :value="numberText(`qty:${line.id}`, line.qty)"
+            min="0"
+            step="0.01"
+            inputmode="decimal"
+            @input="onQty(line, $event)"
+            @blur="onBlur(`qty:${line.id}`)"
+          />
         </label>
         <label>
           <span>Price ({{ symbol }})</span>
-          <input type="number" :value="priceValue(line)" min="0" step="0.01" inputmode="decimal" @input="onPrice(line, $event)" />
+          <input
+            type="number"
+            :value="moneyText(`price:${line.id}`, line.unitPrice)"
+            min="0"
+            :step="step"
+            :inputmode="decimals ? 'decimal' : 'numeric'"
+            @input="onPrice(line, $event)"
+            @blur="onBlur(`price:${line.id}`)"
+          />
         </label>
         <label>
           <span>Tax %</span>
-          <input v-model.number="line.taxRate" type="number" min="0" step="0.1" inputmode="decimal" @input="markDirty" />
+          <input
+            type="number"
+            :value="numberText(`tax:${line.id}`, line.taxRate)"
+            min="0"
+            step="0.1"
+            inputmode="decimal"
+            @input="onTaxRate(line, $event)"
+            @blur="onBlur(`tax:${line.id}`)"
+          />
         </label>
         <label>
           <span>Disc %</span>
-          <input v-model.number="line.discountValue" type="number" min="0" max="100" step="1" inputmode="decimal" @input="markDirty" />
+          <input
+            type="number"
+            :value="numberText(`ldisc:${line.id}`, line.discountValue)"
+            min="0"
+            max="100"
+            step="1"
+            inputmode="decimal"
+            @input="onLineDiscount(line, $event)"
+            @blur="onBlur(`ldisc:${line.id}`)"
+          />
         </label>
       </div>
       <div class="between" style="margin-top: 7px">
@@ -377,12 +495,28 @@ onBeforeRouteLeave(async () => {
         <span class="label">Invoice discount</span>
         <div class="row">
           <AppSelect v-model="draft.discountType" label="Discount type" compact :options="discountOptions" @update:model-value="markDirty" />
-          <input v-model.number="invoiceDiscountValue" type="number" min="0" step="0.01" inputmode="decimal" />
+          <input
+            type="number"
+            :value="draft.discountType === 'percent' ? numberText('discount', draft.discountValue) : moneyText('discount', draft.discountValue)"
+            min="0"
+            :step="draft.discountType === 'percent' ? 1 : step"
+            :inputmode="draft.discountType === 'percent' || decimals ? 'decimal' : 'numeric'"
+            @input="onInvoiceDiscount"
+            @blur="onBlur('discount')"
+          />
         </div>
       </label>
       <label class="field">
         <span class="label">Shipping ({{ symbol }})</span>
-        <input v-model.number="shippingValue" type="number" min="0" step="0.01" inputmode="decimal" />
+        <input
+          type="number"
+          :value="moneyText('shipping', draft.shipping)"
+          min="0"
+          :step="step"
+          :inputmode="decimals ? 'decimal' : 'numeric'"
+          @input="onShipping"
+          @blur="onBlur('shipping')"
+        />
       </label>
     </div>
 

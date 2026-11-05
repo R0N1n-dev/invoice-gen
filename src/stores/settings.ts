@@ -45,7 +45,9 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   async function loadDemo() {
-    await seedDemoData()
+    // Seed with the user's current preferences so loading the sample studio never
+    // silently resets their currency back to the USD default.
+    await seedDemoData(plain(settings.value))
     await load()
     await useDataStore().load()
   }

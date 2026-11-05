@@ -12,6 +12,10 @@ no haptics.
 - Drafts -> issued -> partially paid -> paid, plus overdue and void
 - Line items with quantity, unit price, unit, per-line discount and per-line tax rate
 - Invoice-level percentage or fixed discount, shipping, multi-currency
+- Currency sticks: the invoice keeps the currency you picked (a client's saved currency never
+  overrides it) and switching currency keeps the numbers you typed. Zero-decimal currencies
+  (UGX, JPY, KRW, VND…) show no decimals, three-decimal ones (KWD, BHD…) show three, and the
+  amount inputs follow suit
 - Per-rate tax breakdown (mixed rates supported), proportional discount allocation
 - Partial payments ledger, mark-as-paid, automatic balance and status
 - Duplicate, void and delete; client details are snapshotted onto each invoice

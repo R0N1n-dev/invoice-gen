@@ -9,6 +9,23 @@ export function currencyDigits(code: string): number {
   return 2
 }
 
+/** Input step that matches the currency's minor unit (1, 0.01 or 0.001). */
+export function currencyStep(code: string): number {
+  const digits = currencyDigits(code)
+  return digits === 0 ? 1 : digits === 3 ? 0.001 : 0.01
+}
+
+/**
+ * Re-express an amount in another currency's minor units while keeping the
+ * number the user typed: 1500.00 EUR -> 1500 UGX, not 150,000 UGX.
+ */
+export function rebaseMinor(minor: number, from: string, to: string): number {
+  const fromDigits = currencyDigits(from)
+  const toDigits = currencyDigits(to)
+  if (fromDigits === toDigits || !Number.isFinite(minor)) return minor
+  return Math.round((minor / Math.pow(10, fromDigits)) * Math.pow(10, toDigits))
+}
+
 export function toMajor(minor: number, currency: string): number {
   return minor / Math.pow(10, currencyDigits(currency))
 }

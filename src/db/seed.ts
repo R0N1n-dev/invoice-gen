@@ -103,12 +103,15 @@ interface SeedSpec {
   number: string
 }
 
-export async function seedDemoData(): Promise<{ clients: Client[]; items: CatalogItem[]; invoices: Invoice[] }> {
+export async function seedDemoData(
+  base: Settings = DEFAULT_SETTINGS,
+): Promise<{ clients: Client[]; items: CatalogItem[]; invoices: Invoice[] }> {
   const now = new Date().toISOString()
+  const currency = base.currency || DEFAULT_SETTINGS.currency
   const C = (name: string, extra: Partial<Client> = {}): Client => ({
     id: uid('cli'),
     name,
-    currency: 'USD',
+    currency,
     paymentTerms: 14,
     country: 'Portugal',
     createdAt: now,
@@ -302,7 +305,7 @@ export async function seedDemoData(): Promise<{ clients: Client[]; items: Catalo
       status: s.status,
       issueDate: s.issue,
       dueDate: s.due,
-      currency: 'USD',
+      currency,
       items: s.items,
       discountType: s.discount?.type ?? 'percent',
       discountValue: s.discount?.value ?? 0,
@@ -320,7 +323,9 @@ export async function seedDemoData(): Promise<{ clients: Client[]; items: Catalo
     }
   })
 
-  const settings: Settings = { ...DEFAULT_SETTINGS, nextNumber: 44, onboarded: true }
+  // Keep the user's own preferences (currency, locale, theme, fonts, tax defaults)
+  // and only bend the numbering/onboarding flags for the sample studio.
+  const settings: Settings = { ...base, nextNumber: 44, onboarded: true }
 
   await db.transaction('rw', db.clients, db.items, db.invoices, db.kv, async () => {
     await Promise.all([db.clients.clear(), db.items.clear(), db.invoices.clear()])

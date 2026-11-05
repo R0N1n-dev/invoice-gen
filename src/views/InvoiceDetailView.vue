@@ -24,7 +24,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { useUiStore } from '@/stores/ui'
 import { computeTotals, displayStatus } from '@/lib/calc'
 import { formatDate, relativeDueLabel, todayISO } from '@/lib/dates'
-import { amountInputValue, parseAmount, currencySymbol } from '@/lib/money'
+import { amountInputValue, currencyDigits, currencyStep, parseAmount, currencySymbol } from '@/lib/money'
 import { savePdf, sharePdf } from '@/lib/native'
 import type { PdfTemplate } from '@/types'
 
@@ -38,6 +38,8 @@ const invoice = computed(() => data.getInvoice(props.id))
 const totals = computed(() => (invoice.value ? computeTotals(invoice.value) : null))
 const status = computed(() => (invoice.value ? displayStatus(invoice.value) : 'draft'))
 const symbol = computed(() => currencySymbol(invoice.value?.currency ?? 'USD', settings.locale))
+const step = computed(() => currencyStep(invoice.value?.currency ?? settings.currency))
+const decimals = computed(() => currencyDigits(invoice.value?.currency ?? settings.currency) > 0)
 const dt = (iso: string) => formatDate(iso, settings.locale, settings.dateFormat)
 
 const methodOptions = ['Bank transfer', 'Cash', 'Credit card', 'PayPal', 'Stripe', 'Other'].map((m) => ({
@@ -339,7 +341,7 @@ async function removePayment(paymentId: string) {
       <div class="grid-2">
         <label class="field">
           <span class="label">Amount ({{ invoice.currency }})</span>
-          <input v-model.number="payAmount" type="number" min="0" step="0.01" inputmode="decimal" />
+          <input v-model.number="payAmount" type="number" min="0" :step="step" :inputmode="decimals ? 'decimal' : 'numeric'" />
         </label>
         <label class="field">
           <span class="label">Date received</span>

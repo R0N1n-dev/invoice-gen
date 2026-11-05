@@ -108,3 +108,22 @@ mockups/                  static design directions + screenshots
   Generator”), dismissed by `src/main.ts` once the first screen is painted, so browsers no
   longer flash a blank dark page while the app boots. Bootstrap also falls back to defaults if
   storage throws, so the splash can never get stuck on screen.
+
+## 9. Currency, decimals and template fixes
+
+- **Currency no longer flips back to USD.** Picking a client used to overwrite the invoice
+  currency with the client’s stored currency (`chooseClient`), and loading sample data wrote
+  `DEFAULT_SETTINGS` over the user’s preferences, resetting currency to USD. The invoice now
+  keeps the currency you chose, the demo seed receives the current settings and only touches
+  the numbering/onboarding flags, and the per-client currency is applied explicitly through
+  *Clients → New invoice for …* (`/invoices/new?client=<id>`).
+- **Switching currency keeps the typed amounts**: a `rebaseMinor` watcher re-expresses minor
+  units between currencies (1500.00 EUR → 1500 UGX, not 150,000 UGX).
+- **Decimals follow the currency**: `currencyStep` drives the amount inputs (step 1 for
+  zero-decimal currencies, 0.001 for three-decimal ones), and numeric fields keep their raw
+  text while focused so parsing/rounding can never rewrite a value mid-keystroke.
+- **Minimal template header fixed**: the preview styled `.mini …` while the root class is
+  `minimal`, so the padding and top rule never applied and the header text overflowed the
+  paper edge. Selectors now target `.minimal`.
+- **Totals bar no longer clips the last row** in the modern and minimal PDFs — the filled
+  TOTAL DUE bar has its own clearance below the tax/balance lines.

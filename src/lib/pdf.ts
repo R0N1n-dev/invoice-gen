@@ -366,37 +366,42 @@ function drawTotals(
     writeRight(page, value, right, cursor, f.regular, 8.6, C.body)
     cursor -= 14
   }
-  cursor -= 4
   const due = totals.balance > 0 ? totals.balance : totals.total
   if (opts.boxed) {
+    // Keep a clear gap under the last totals row so the filled bar never sits on
+    // top of the tax / balance lines (this used to clip the last row).
+    const boxH = 30
+    const top = cursor - 8
+    const baseline = top - boxH + 12
     page.drawRectangle({
       x: left - 10,
-      y: cursor - 9,
+      y: top - boxH,
       width: boxW + 10,
-      height: 26,
+      height: boxH,
       color: opts.accentTotal ? ctx.accent : C.ink,
     })
     write(
       page,
       totals.paid >= totals.total && totals.total > 0 ? 'PAID' : 'TOTAL DUE',
       left,
-      cursor,
+      baseline,
       f.semi,
       7,
       opts.accentTotal ? rgb(1, 1, 1) : rgb(0.75, 0.78, 0.85),
     )
-    writeRight(page, plainAmount(due, ctx), right - 10, cursor, f.bold, 12, C.white)
-    cursor -= 30
+    writeRight(page, plainAmount(due, ctx), right - 10, baseline, f.bold, 12, C.white)
+    cursor = top - boxH - 6
   } else {
+    cursor -= 6
     page.drawLine({
-      start: { x: left, y: cursor + 8 },
-      end: { x: right, y: cursor + 8 },
+      start: { x: left, y: cursor },
+      end: { x: right, y: cursor },
       thickness: 0.8,
       color: C.ink,
     })
-    write(page, 'TOTAL DUE', left, cursor, f.semi, 7.5, C.muted)
-    writeRight(page, plainAmount(due, ctx), right, cursor - 2, f.bold, 16, C.ink)
-    cursor -= 28
+    write(page, 'TOTAL DUE', left, cursor - 16, f.semi, 7.5, C.muted)
+    writeRight(page, plainAmount(due, ctx), right, cursor - 19, f.bold, 16, C.ink)
+    cursor -= 34
   }
   return cursor
 }

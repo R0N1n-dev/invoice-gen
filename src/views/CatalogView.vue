@@ -8,12 +8,15 @@ import Money from '@/components/Money.vue'
 import { useDataStore } from '@/stores/data'
 import { useSettingsStore } from '@/stores/settings'
 import { useUiStore } from '@/stores/ui'
-import { amountInputValue, currencySymbol, parseAmount } from '@/lib/money'
+import { amountInputValue, currencyDigits, currencyStep, currencySymbol, parseAmount } from '@/lib/money'
 import type { CatalogItem } from '@/types'
 
 const data = useDataStore()
 const settings = useSettingsStore()
 const ui = useUiStore()
+
+const step = computed(() => currencyStep(settings.currency))
+const decimals = computed(() => currencyDigits(settings.currency) > 0)
 
 const query = ref('')
 const showForm = ref(false)
@@ -171,7 +174,7 @@ async function remove() {
       <div class="grid-2">
         <label class="field">
           <span class="label">Price ({{ symbol }})</span>
-          <input v-model.number="form.price" type="number" min="0" step="0.01" inputmode="decimal" />
+          <input v-model.number="form.price" type="number" min="0" :step="step" :inputmode="decimals ? 'decimal' : 'numeric'" />
         </label>
         <label class="field">
           <span class="label">Unit</span>

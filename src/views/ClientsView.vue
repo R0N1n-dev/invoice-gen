@@ -39,6 +39,12 @@ function openEdit(client: Client) {
   showForm.value = true
 }
 
+/** Start a blank invoice pre-filled with this client (uses their preferred currency). */
+function invoiceFor(client: Client) {
+  showForm.value = false
+  void router.push({ path: '/invoices/new', query: { client: client.id } })
+}
+
 async function save(payload: Partial<Client>) {
   const created = await data.saveClient({ ...payload, name: payload.name ?? '' } as Client, editing.value?.id)
   showForm.value = false
@@ -123,7 +129,10 @@ async function remove(client: Client) {
         <Trash2 :size="14" /> Delete client
       </button>
       <div v-if="editing" class="mt-14">
-        <div class="between" style="margin-bottom: 6px">
+        <button class="btn ghost block" type="button" @click="invoiceFor(editing)">
+          <Plus :size="14" /> New invoice for {{ editing.name }}
+        </button>
+        <div class="between" style="margin: 14px 0 6px">
           <span class="eyebrow">Invoice history</span>
           <button class="tiny link" type="button" @click="router.push('/invoices')">All invoices</button>
         </div>
