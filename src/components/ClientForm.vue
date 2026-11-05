@@ -94,6 +94,7 @@ function submit() {
           :options="currencyOptions"
           @update:model-value="(v) => (form.currency = String(v))"
         />
+        <span class="tiny dim">Used when you start an invoice from this client</span>
       </label>
       <label class="field">
         <span class="label">Payment terms</span>
